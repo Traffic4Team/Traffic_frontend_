@@ -13,8 +13,7 @@ function GoogleMaps() {
   const [list1, setList1] = useState([]);
   const [list2, setList2] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [setSearchTriggered] = useState(false);
-  const [pagination, setPagination] = useState(null);
+  const [searchTriggered, setSearchTriggered] = useState(false);  const [pagination, setPagination] = useState(null);
   const [selectedType] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -85,7 +84,7 @@ function GoogleMaps() {
     if (searchTerm && selectedType) { // selectedType이 설정된 경우에만 검색 실행
       fetchPlaces(searchTerm);
     }
-  }, [googleMap, searchTerm, selectedType, fetchPlaces]);
+  }, [googleMap, searchTerm, selectedType]);
 
   useEffect(() => {
     if (!googleMap) return;
@@ -132,7 +131,6 @@ function GoogleMaps() {
   
     setLoading(true);
     const service = new window.google.maps.places.PlacesService(googleMap);
-  
     const mapCenter = googleMap.getCenter();
   
     const request = {
@@ -142,10 +140,11 @@ function GoogleMaps() {
         center: mapCenter.toJSON(),
         radius: 5000,
       }),
-      language: 'kr',  // 검색 언어를 영어로 설정
+      language: 'kr',
     };
   
     service.textSearch(request, (results, status, pagination) => {
+      setLoading(false); // 여기에서 로딩 상태를 false로 설정
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
         const placeData = results.map(place => ({
           title: place.name,
@@ -161,7 +160,6 @@ function GoogleMaps() {
   
         setHotels(placeData);
         initializeList1(placeData);
-        
         if (placeData.length > 0) {
           const avgLat = placeData.reduce((sum, place) => sum + place.lat, 0) / placeData.length;
           const avgLng = placeData.reduce((sum, place) => sum + place.lng, 0) / placeData.length;
@@ -174,11 +172,9 @@ function GoogleMaps() {
         } else {
           setPagination(null);
         }
-  
       } else {
         setError('장소를 가져오는 중 오류가 발생했습니다. 나중에 다시 시도해 주세요.');
       }
-      setLoading(false);
     });
   }, [googleMap]);
 
@@ -194,11 +190,11 @@ function GoogleMaps() {
   };
   
   const handleCustomSearch = (customTerm) => {
-    setSearchTerm(customTerm); // 원하는 값으로 searchTerm 업데이트
+      setSearchTerm(customTerm); // 원하는 값으로 searchTerm 업데이트
 
-    // 검색을 실행하는 fetchPlaces 함수를 호출
-    fetchPlaces(customTerm); // 업데이트된 값으로 검색 실행
-};
+      // 검색을 실행하는 fetchPlaces 함수를 호출
+      fetchPlaces(customTerm); // 업데이트된 값으로 검색 실행
+  };
 
   const fetchMoreResults = () => {
     if (pagination && pagination.hasNextPage) {
