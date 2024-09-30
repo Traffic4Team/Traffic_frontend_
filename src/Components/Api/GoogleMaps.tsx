@@ -18,6 +18,7 @@ function GoogleMaps() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [daysCount, setDaysCount] = useState(0);
+  
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -141,41 +142,41 @@ function GoogleMaps() {
 
   useEffect(() => {
     if (!googleMap) return;
-
-    // 기존 마커 제거
+  
+    // Remove existing markers
     markers.forEach(marker => marker.setMap(null));
-
-    // list2에 있는 항목으로 새로운 마커 생성
+  
+    // Add new markers for list2
     const newMarkers = list2.map(place => {
       const position = { lat: place.lat, lng: place.lng };
-
-      // Find the marker icon based on place types
       const category = place.types.find(type => markerIcons[type]);
       const icon = {
-        url: category ? markerIcons[category] : 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png', // Marker icon URL
-        scaledSize: new window.google.maps.Size(40, 40), // Adjust marker size
+        url: category ? markerIcons[category] : 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png',
+        scaledSize: new window.google.maps.Size(40, 40),
       };
-
+  
       const marker = new window.google.maps.Marker({
         position,
         map: googleMap,
         title: place.title,
-        icon: icon, // Set marker icon
+        icon,
       });
-
-      // InfoWindow to show place details
-      const infoContent = `
-        <div>
-          <h3>${place.title}</h3>
-          <p>${place.address}</p>
-        </div>
-      `;
-      const infoWindow = new window.google.maps.InfoWindow({ content: infoContent });
-      marker.addListener('click', () => infoWindow.open(googleMap, marker));
-
+  
+      // Use a single InfoWindow
+      marker.addListener('click', () => {
+        const infoWindowContent = `
+          <div>
+            <h3>${place.title}</h3>
+            <p>${place.address}</p>
+          </div>
+        `;
+        infoWindow.setContent(infoWindowContent);
+        infoWindow.open(googleMap, marker);
+      });
+  
       return marker;
     });
-
+  
     setMarkers(newMarkers);
   }, [list2, googleMap, markerIcons, markers]);
 
@@ -184,10 +185,12 @@ function GoogleMaps() {
   };
 
   const handleSearchClick = () => {
-    if (searchTerm.trim()) {
-      handleCustomSearch(searchTerm); // 기존 검색어 사용
-      setSearchTriggered(true);
+    if (!searchTerm.trim()) {
+      alert("검색어를 입력해주세요."); // Alert for empty search term
+      return;
     }
+    handleCustomSearch(searchTerm);
+    setSearchTriggered(true);
   };
   
   const handleCustomSearch = (customTerm) => {
