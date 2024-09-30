@@ -35,6 +35,59 @@ function GoogleMaps() {
   }), []);
   
 
+  const fetchPlaces = useCallback((searchTerm) => {
+    if (!googleMap) return;
+  
+    setLoading(true);
+    const service = new window.google.maps.places.PlacesService(googleMap);
+    const mapCenter = googleMap.getCenter();
+  
+    const request = {
+      query: searchTerm,
+      fields: ['name', 'formatted_address', 'geometry', 'place_id', 'photos', 'types', 'price_level', 'international_phone_number', 'rating'],
+      locationBias: new window.google.maps.Circle({
+        center: mapCenter.toJSON(),
+        radius: 5000,
+      }),
+      language: 'kr',
+    };
+  
+    service.textSearch(request, (results, status, pagination) => {
+      setLoading(false);
+      if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+        const placeData = results.map(place => ({
+          title: place.name,
+          address: place.formatted_address,
+          image: place.photos && place.photos[0] ? place.photos[0].getUrl() : null,
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng(),
+          phone_number: place.international_phone_number,
+          rating: place.rating,
+          url: place.url,
+          types: place.types,
+        }));
+  
+        setHotels(placeData);
+        initializeList1(placeData);
+        if (placeData.length > 0) {
+          const avgLat = placeData.reduce((sum, place) => sum + place.lat, 0) / placeData.length;
+          const avgLng = placeData.reduce((sum, place) => sum + place.lng, 0) / placeData.length;
+          googleMap.setCenter({ lat: avgLat, lng: avgLng });
+          googleMap.setZoom(12);
+        }
+  
+        if (pagination && pagination.hasNextPage) {
+          setPagination(() => pagination);
+        } else {
+          setPagination(null);
+        }
+      } else {
+        setError('장소를 가져오는 중 오류가 발생했습니다. 나중에 다시 시도해 주세요.');
+      }
+    });
+  }, [googleMap]);
+
+
   useEffect(() => {
     if (!window.google) return;
 
@@ -125,58 +178,6 @@ function GoogleMaps() {
 
     setMarkers(newMarkers);
   }, [list2, googleMap, markerIcons, markers]);
-
-  const fetchPlaces = useCallback((searchTerm) => {
-    if (!googleMap) return;
-  
-    setLoading(true);
-    const service = new window.google.maps.places.PlacesService(googleMap);
-    const mapCenter = googleMap.getCenter();
-  
-    const request = {
-      query: searchTerm,
-      fields: ['name', 'formatted_address', 'geometry', 'place_id', 'photos', 'types', 'price_level', 'international_phone_number', 'rating'],
-      locationBias: new window.google.maps.Circle({
-        center: mapCenter.toJSON(),
-        radius: 5000,
-      }),
-      language: 'kr',
-    };
-  
-    service.textSearch(request, (results, status, pagination) => {
-      setLoading(false);
-      if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-        const placeData = results.map(place => ({
-          title: place.name,
-          address: place.formatted_address,
-          image: place.photos && place.photos[0] ? place.photos[0].getUrl() : null,
-          lat: place.geometry.location.lat(),
-          lng: place.geometry.location.lng(),
-          phone_number: place.international_phone_number,
-          rating: place.rating,
-          url: place.url,
-          types: place.types,
-        }));
-  
-        setHotels(placeData);
-        initializeList1(placeData);
-        if (placeData.length > 0) {
-          const avgLat = placeData.reduce((sum, place) => sum + place.lat, 0) / placeData.length;
-          const avgLng = placeData.reduce((sum, place) => sum + place.lng, 0) / placeData.length;
-          googleMap.setCenter({ lat: avgLat, lng: avgLng });
-          googleMap.setZoom(12);
-        }
-  
-        if (pagination && pagination.hasNextPage) {
-          setPagination(() => pagination);
-        } else {
-          setPagination(null);
-        }
-      } else {
-        setError('장소를 가져오는 중 오류가 발생했습니다. 나중에 다시 시도해 주세요.');
-      }
-    });
-  }, [googleMap]);
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
