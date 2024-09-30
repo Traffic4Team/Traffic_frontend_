@@ -5,24 +5,22 @@ import { AuthContext } from '../../context/AuthContext';
 import './Login.css';
 
 function Login() {
-  const { auth, tokens, updateAuth, clearAuth } = useContext(AuthContext);
+  const { auth, tokens, updateAuth} = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
   const [authEmail, setAuthEmail] = useState('');
   const [error, setError] = useState('');
-  const [setUserInfo] = useState(null);
+  const [setUserInfo] = useState(null); // 수정된 부분
 
   const changeEmail = (event) => setEmail(event.target.value);
   const changePw = (event) => setPw(event.target.value);
-  const changeAuthEmail = (event) => setAuthEmail(event.target.value);
 
   const handleJoinClick = () => {
     navigate('/register'); // 회원가입 페이지로 이동
   };
 
-  const handleUserClick = () => navigate('/user');
 
   const login = async (event) => {
     event.preventDefault(); // Prevent default form submission
@@ -66,7 +64,7 @@ function Login() {
   };
 
   useEffect(() => {
-    if ( tokens.accessToken) {
+    if (tokens.accessToken) {
       navigate('/user'); // 토큰이 존재하면 /user 페이지로 이동
     }
   }, [tokens.accessToken, navigate]); // tokens, navigate 의존성 추가

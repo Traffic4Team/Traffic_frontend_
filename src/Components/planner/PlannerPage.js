@@ -19,18 +19,19 @@ const PlannerPage = () => {
   const [content, setContent] = useState('');
   
 
-  // 중심 좌표 계산
-  const center = {
-    lat: hotels.length > 0
-      ? hotels.reduce((sum, hotel) => sum + hotel.lat, 0) / hotels.length
-      : 37.5,
-    lng: hotels.length > 0
-      ? hotels.reduce((sum, hotel) => sum + hotel.lng, 0) / hotels.length
-      : 127.0,
-  };
+
 
   // 지도 및 DirectionsService, DirectionsRenderer 인스턴스 생성
   useEffect(() => {
+    // 중심 좌표 계산
+    const center = {
+      lat: hotels.length > 0
+        ? hotels.reduce((sum, hotel) => sum + hotel.lat, 0) / hotels.length
+        : 37.5,
+      lng: hotels.length > 0
+        ? hotels.reduce((sum, hotel) => sum + hotel.lng, 0) / hotels.length
+        : 127.0,
+    };
     if (!window.google) return;
 
     const container = document.createElement('div');
@@ -72,7 +73,7 @@ const PlannerPage = () => {
         mapContainer.removeChild(container);
       }
     };
-  }, []); // 빈 의존성 배열로 인해 컴포넌트가 마운트될 때만 실행
+  }, [hotels]); // 빈 의존성 배열로 인해 컴포넌트가 마운트될 때만 실행
 
   // 마커 업데이트
   useEffect(() => {
@@ -125,7 +126,7 @@ const PlannerPage = () => {
 
       // restaurant 유형의 장소만 필터링하여 경로 그리기
       const restaurantHotels = hotels.filter(hotel =>
-        hotel.types.includes('restaurant') && !hotel.types.includes('lodging') || hotel.types.includes('tourist_attraction')
+        (hotel.types.includes('restaurant') && !hotel.types.includes('lodging')) || hotel.types.includes('tourist_attraction')
       );
 
       if (restaurantHotels.length > 1 && directionsService && directionsRenderer) {

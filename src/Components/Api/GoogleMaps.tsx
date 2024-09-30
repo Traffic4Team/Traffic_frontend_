@@ -67,17 +67,17 @@ function GoogleMaps() {
   }, []);
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const destinationParam = queryParams.get('destination'); // destination 쿼리 파라미터 읽기
-    const categoryParam = queryParams.get('category'); // category 쿼리 파라미터 읽기
-    
-    // destination과 category가 모두 존재할 경우 검색어 설정 및 검색 실행
-    if (destinationParam) {
-      const searchQuery = categoryParam ? `${destinationParam} ${categoryParam}` : destinationParam;
-      setSearchTerm(searchQuery); // 검색어 설정
-      fetchPlaces(searchQuery); // 검색 실행
-    }
-  }, [location.search, googleMap, selectedType, fetchPlaces]); 
+      const queryParams = new URLSearchParams(location.search);
+      const destinationParam = queryParams.get('destination'); // destination 쿼리 파라미터 읽기
+      const categoryParam = queryParams.get('category'); // category 쿼리 파라미터 읽기
+      
+      // destination과 category가 모두 존재할 경우 검색어 설정 및 검색 실행
+      if (destinationParam) {
+          const searchQuery = categoryParam ? `${destinationParam} ${categoryParam}` : destinationParam;
+          setSearchTerm(searchQuery); // 검색어 설정
+          fetchPlaces(searchQuery); // 검색 실행
+      }
+  }, [location.search, googleMap, selectedType, fetchPlaces]);
 
   useEffect(() => {
     if (!googleMap) return;
@@ -124,7 +124,7 @@ function GoogleMaps() {
     });
 
     setMarkers(newMarkers);
-  }, [list2, googleMap, markerIcons]);
+  }, [list2, googleMap, markerIcons, markers]);
 
   const fetchPlaces = useCallback((searchTerm) => {
     if (!googleMap) return;
@@ -144,7 +144,7 @@ function GoogleMaps() {
     };
   
     service.textSearch(request, (results, status, pagination) => {
-      setLoading(false); // 여기에서 로딩 상태를 false로 설정
+      setLoading(false);
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
         const placeData = results.map(place => ({
           title: place.name,
@@ -272,21 +272,21 @@ function GoogleMaps() {
     }
   }, [location.state]);
 
-  const fetchRecommendedPlaces = async () => {
+  const fetchRecommendedPlaces = useCallback(async () => {
     try {
-      const response = await fetch('API_ENDPOINT_FOR_RECOMMENDATIONS'); // GPT 추천 여행지 API 호출
+      const response = await fetch('API_ENDPOINT_FOR_RECOMMENDATIONS');
       const data = await response.json();
-      const recommendedPlace = data.recommendation; // 추천 여행지 값
-      setSearchTerm(recommendedPlace); // 검색창에 추천 여행지 입력
-      fetchPlaces(recommendedPlace); // 추천 여행지로 검색 실행
+      const recommendedPlace = data.recommendation;
+      setSearchTerm(recommendedPlace);
+      fetchPlaces(recommendedPlace);
     } catch (error) {
       console.error('추천 여행지 가져오기 오류:', error);
     }
-  };
+  }, [fetchPlaces]);
 
   useEffect(() => {
-    fetchRecommendedPlaces(); // 컴포넌트 마운트 시 추천 여행지 호출
-  }, []);
+    fetchRecommendedPlaces();
+  }, [fetchRecommendedPlaces]);
 
 
 

@@ -32,13 +32,18 @@ const DateRangePicker = ({ onDateRangeSelect }) => {
 
   const isDateInRange = (date) => {
     if (!selectedStartDate || !selectedEndDate) return false;
-    return isAfter(date, selectedStartDate) && isBefore(date, selectedEndDate) || date.toDateString() === selectedEndDate.toDateString();
+    return (
+      (isAfter(date, selectedStartDate) && isBefore(date, selectedEndDate)) || 
+      date.toDateString() === selectedEndDate.toDateString()
+    );
   };
 
   const isDateSelected = (date) => {
-    return (selectedStartDate && !selectedEndDate && format(date, 'yyyy-MM-dd') === format(selectedStartDate, 'yyyy-MM-dd'))
-      || (selectedStartDate && selectedEndDate && isDateInRange(date))
-      || (selectedStartDate && selectedEndDate && format(date, 'yyyy-MM-dd') === format(selectedEndDate, 'yyyy-MM-dd'));
+    return (
+      (selectedStartDate && !selectedEndDate && format(date, 'yyyy-MM-dd') === format(selectedStartDate, 'yyyy-MM-dd')) ||
+      (selectedStartDate && selectedEndDate && isDateInRange(date)) ||
+      (selectedStartDate && selectedEndDate && format(date, 'yyyy-MM-dd') === format(selectedEndDate, 'yyyy-MM-dd'))
+    );
   };
 
   const getFormattedRange = () => {
