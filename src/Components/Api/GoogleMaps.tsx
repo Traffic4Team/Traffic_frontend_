@@ -13,7 +13,7 @@ function GoogleMaps() {
   const [list1, setList1] = useState([]);
   const [list2, setList2] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [ setSearchTriggered] = useState(false);
+  const [searchTriggered, setSearchTriggered] = useState(false);
   const [pagination, setPagination] = useState(null);
   const [selectedType] = useState('');
   const [startDate, setStartDate] = useState(null);
