@@ -253,7 +253,8 @@ const PlannerPage = () => {
   const renderRestaurantContainers = () => {
     // 레스토랑 타입의 호텔을 필터링합니다.
     const restaurantHotels = hotels.filter(hotel => 
-      hotel.types.includes('restaurant') && !hotel.types.includes('lodging') || hotel.types.includes('tourist_attraction')
+      (hotel.types.includes('restaurant') && !hotel.types.includes('lodging')) || 
+      (hotel.types.includes('tourist_attraction'))
     );
 
     console.log("Filtered Restaurant Hotels:", restaurantHotels); // 필터링된 레스토랑 데이터 확인

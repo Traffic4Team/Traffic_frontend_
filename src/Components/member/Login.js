@@ -136,6 +136,7 @@ function Login() {
                 인증 이메일 전송
               </button>
             </form>
+            {userInfo && <p>환영합니다, {userInfo.name}!</p>} {/* 사용자 정보 표시 */}
           </div>
         </div>
         <div className="right">
