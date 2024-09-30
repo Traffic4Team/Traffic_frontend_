@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, addMonths, subMonths, isBefore, isAfter } from 'date-fns';  
 import { useDateContext } from '../../context/DateContext'; 
 import { useNavigate } from 'react-router-dom';
-import './DateRangePicker.css'; 
+import '../../assets/css/DateRangePicker.css'; 
 
 const DateRangePicker = ({ onDateRangeSelect }) => {
   const { selectedStartDate, selectedEndDate, setSelectedStartDate, setSelectedEndDate } = useDateContext();
@@ -27,7 +27,7 @@ const DateRangePicker = ({ onDateRangeSelect }) => {
         setSelectedEndDate(null);
       } else {
         setSelectedEndDate(date);
-        if (onDateRangeSelect) onDateRangeSelect({ startDate: selectedStartDate, endDate: date });
+        if (onDateRangeSelect) onDateRangeSelect([selectedStartDate, date]); // 배열로 날짜 전달
       }
     }
   };
@@ -61,15 +61,12 @@ const DateRangePicker = ({ onDateRangeSelect }) => {
   };  
 
   const handleApplyDates = () => {
-    if (selectedStartDate && selectedEndDate) {
-      const daysCount = Math.ceil((selectedEndDate - selectedStartDate) / (1000 * 60 * 60 * 24)) + 1;
-      navigate('/GoogleMaps', {
-        state: {
-          startDate: selectedStartDate,
-          endDate: selectedEndDate,
-          daysCount 
-        }
-      });
+    console.log('handleApplyDates called');
+    console.log('Selected Start Date:', selectedStartDate);
+    console.log('Selected End Date:', selectedEndDate);
+  
+    if (selectedStartDate && selectedEndDate && onDateRangeSelect) {
+      onDateRangeSelect([selectedStartDate, selectedEndDate]); // 배열로 날짜 전달
     }
   };
 

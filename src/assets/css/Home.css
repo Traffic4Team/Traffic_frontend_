@@ -1,0 +1,127 @@
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300&family=Salsa&display=swap");
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  background: #ffffff;
+  font-family: "Quicksand", sans-serif;
+}
+
+.swiper-container {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.swiper-slide {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
+
+/* content */
+
+.content {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  top: 14%;
+  left: 3%;
+  width: 40%;
+  height: max-content;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 20px;
+  opacity: 0; /* 초기 상태의 불투명도 */
+  z-index: 2;
+}
+
+.content h1, .content p {
+  color: #f2f2f2;
+}
+
+.content h1 {
+  font-family: "Salsa", cursive;
+  font-size: clamp(2rem, 3vw, 6rem);
+  margin-bottom: 20px;
+  opacity: 1; /* 애니메이션을 제거하므로 불투명도를 1로 변경 */
+}
+
+.content p {
+  font-family: inherit;
+  font-size: 1.2rem;
+  line-height: 1.4;
+  font-weight: 500;
+  opacity: 1; /* 애니메이션을 제거하므로 불투명도를 1로 변경 */
+}
+
+/* 슬라이드가 활성화되면 불투명도를 1로 설정 */
+.swiper-slide-active .content {
+  opacity: 1;
+}
+
+/* background */
+
+.background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: brightness(90%);
+  opacity: 1; /* 애니메이션을 제거하므로 불투명도를 1로 변경 */
+  z-index: 1;
+}
+
+/* pagination bullet */
+
+.swiper-pagination-bullet {
+  width: 16px;
+  height: 16px;
+  background-color: #a3a6a3;
+  border-radius: 50%;
+  transition: all 0.6s ease-in-out;
+}
+
+.swiper-pagination-bullet-active {
+  height: 32px;
+  background-image: linear-gradient(180deg, #f09819 0%, #ff512f 100%);
+  border-radius: 14px;
+}
+
+.white-container {
+  position: absolute; /* 부모 컨테이너에 대해 절대 위치 지정 */
+  top: 0;
+  left: 0;
+  width: 40%; /* 전체 높이의 5분의 2 */
+  height: 100%;
+  background-color: white; /* 흰색 배경 */
+  z-index: 3; /* 다른 요소 위에 표시 */
+  display: flex; /* Flexbox 사용 */
+  flex-direction: column; /* 세로 방향 정렬 */
+  align-items: center; /* 가로 방향 중앙 정렬 */
+  justify-content: center; /* 세로 방향 중앙 정렬 */
+  font-size: 27px; /* Font size */
+  font-weight: bold;
+}
+
+
+.start-button{
+  width: 30%;
+  text-align: center;
+  border: none;
+  padding: 10px 20px; /* 여백 조정 */
+  font-size: 14px; /* 글자 크기 */
+  cursor: pointer; /* 포인터 커서 */
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; /* 부드러운 전환 효과 */
+  display: flex; /* Flexbox 사용 */
+  align-items: center; /* 수직 가운데 정렬 */
+  justify-content: center; /* 수평 가운데 정렬 */
+  box-shadow: none; /* 그림자 제거 */
+  margin-top: 20px;
+}

@@ -59,3 +59,9 @@ nav ul li a:hover {
   background-color: #0047AB;
   color: #ffffff;
 }
+
+.logo-icon{
+  margin-right: 5px;
+  width: 40px;
+  height: 40px;
+}

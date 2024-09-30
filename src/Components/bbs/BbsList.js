@@ -2,8 +2,6 @@ import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Pagination from "react-js-pagination";
-import "../../css/bbslist.css";
-import "../../css/page.css";
 
 function BbsList() {
     const [bbsList, setBbsList] = useState([]);

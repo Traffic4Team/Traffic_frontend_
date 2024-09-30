@@ -1,20 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import ErrorMessage from '../common/ErrorMessage/ErrorMessage';
-import "./user.css";
+import "../../assets/css/user.css"; // CSS 파일 추가
 import '@fortawesome/fontawesome-free/css/all.css';
+import { AuthContext } from '../../context/AuthContext';
+import UserButton from './userbutton';
 
 function User() {
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
-  const [travelPlans, setTravelPlans] = useState([]); // 간단한 여행 계획 목록
-  const [travelPlan, setTravelPlan] = useState(null); // 상태로 세부 여행 계획
+  const [travelPlans, setTravelPlans] = useState([]);
+  const [travelPlan, setTravelPlan] = useState(null);
   const [editableUserInfo, setEditableUserInfo] = useState(null);
   const [error, setError] = useState('');
-  const [userId, setUserId] = useState(null); // 초기값 null로 설정
-  const [travelPlanId, setTravelPlanId] = useState(null); // 상태로 travelPlanId
+  const [userId, setUserId] = useState(null);
+  const [travelPlanId, setTravelPlanId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { clearAuth } = useContext(AuthContext);
 
   useEffect(() => {
     const storedUserId = localStorage.getItem('userId');
@@ -23,17 +26,16 @@ function User() {
     }
 
     const fetchUserInfo = async () => {
-      if (!userId) return; // userId가 없으면 API 호출 중단
+      if (!userId) return;
 
       try {
         const response = await axios.get(`http://ec2-43-203-192-225.ap-northeast-2.compute.amazonaws.com:8080/user/${userId}`);
         if (response.status === 200) {
           setUserInfo(response.data.data);
-          setEditableUserInfo(response.data.data); // Initialize editable data
+          setEditableUserInfo(response.data.data);
 
-          // 간단한 여행 계획 목록 조회
           const travelPlansResponse = await axios.get(`http://ec2-43-203-192-225.ap-northeast-2.compute.amazonaws.com:8080/user/${userId}/travel-plans`);
-          setTravelPlans(travelPlansResponse.data.data); // 간단한 여행 계획 목록 설정
+          setTravelPlans(travelPlansResponse.data.data);
         } else {
           setError('유저 정보 조회 실패');
         }
@@ -44,13 +46,13 @@ function User() {
     };
 
     fetchUserInfo();
-  }, [userId]); // userId가 변경될 때만 호출
+  }, [userId]);
 
   useEffect(() => {
     if (userId && travelPlanId) {
       fetchTravelPlan(userId, travelPlanId);
     }
-  }, [userId, travelPlanId]); // userId와 travelPlanId가 변경될 때 호출
+  }, [userId, travelPlanId]);
 
   const fetchTravelPlan = async (userId, travelPlanId) => {
     setLoading(true);
@@ -81,7 +83,7 @@ function User() {
     try {
       const response = await axios.delete(`http://ec2-43-203-192-225.ap-northeast-2.compute.amazonaws.com:8080/user/${userId}/travel-plans/${planId}`);
       if (response.status === 200) {
-        setTravelPlans(travelPlans.filter(plan => plan.id !== planId)); // 목록에서 해당 여행 계획 제거
+        setTravelPlans(travelPlans.filter(plan => plan.id !== planId));
         setTravelPlan(null);
         console.log('여행 계획 삭제 성공:', response.data);
       }
@@ -101,6 +103,14 @@ function User() {
     }));
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("bbs_access_token");
+    localStorage.removeItem("id");
+    clearAuth(); 
+    alert(`${userInfo.name}님, 성공적으로 로그아웃 됐습니다 🔒`);
+    navigate("/login");
+  };
+
   return (
     <div className="main-container">
       <ErrorMessage message={error} />
@@ -109,60 +119,57 @@ function User() {
         <div>
           <h2>유저 정보</h2>
           <div className="user-info">
+            {/* 유저 정보 입력 필드 */}
             <label>
               이메일:
-              <input
-                type="text"
-                name="email"
-                value={editableUserInfo?.email || ''} // editableUserInfo가 null일 경우 빈 문자열 처리
-                onChange={handleInputChange}
-                disabled
-              />
+              <input type="text" name="email" value={editableUserInfo?.email || ''} disabled />
             </label>
             <label>
               이름:
-              <input
-                type="text"
-                name="name"
-                value={editableUserInfo?.name || ''} // 동일하게 null일 경우 빈 문자열
-                onChange={handleInputChange}
-              />
+              <input type="text" name="name" value={editableUserInfo?.name || ''} onChange={handleInputChange} />
             </label>
             <label>
               ID:
-              <input
-                type="text"
-                name="id"
-                value={editableUserInfo?.id || ''} // 동일 처리
-                onChange={handleInputChange}
-                disabled
-              />
+              <input type="text" name="id" value={editableUserInfo?.id || ''} disabled />
             </label>
           </div>
-  
+
+          {/* 로그아웃 버튼 */}
+          <button className="logout-button" onClick={handleLogout}>
+            로그아웃
+          </button>
+
           <h2>여행 계획 목록</h2>
           <ul>
             {travelPlans.length ? (
               travelPlans.map((plan) => (
                 <li key={plan.id}>
-                  <button onClick={() => handleTravelPlanClick(plan.id)}>
-                    {plan.title}
-                  </button>
-                  <span> ({new Date(plan.createdAt).toLocaleDateString()})</span>
-                  <button
+                  <UserButton
+                    title={plan.title}
+                    content={plan.content} // Pass the content to the UserButton
+                    onClick={() => handleTravelPlanClick(plan.id)} // Click event to select travel plan
+                  />
+                  <span
                     className="delete-button"
                     onClick={() => handleDeleteTravelPlan(plan.id, plan.title)}
                     aria-label="Delete Travel Plan"
+                    style={{
+                      cursor: 'pointer',
+                      color: 'red',
+                      marginLeft: '10px',
+                      fontSize: '18px',
+                    }}
                   >
-                    <i className="fas fa-times" style={{ color: 'red', marginLeft: '10px' }}></i> {/* X 아이콘 */}
-                  </button>
+                    <i className="fas fa-times"></i>
+                  </span>
+                  <span> ({new Date(plan.createdAt).toLocaleDateString()})</span>
                 </li>
               ))
             ) : (
               <p>여행 계획이 없습니다.</p>
             )}
           </ul>
-  
+
           <h2>여행 계획 세부 정보</h2>
           {travelPlan ? (
             <div>
@@ -173,7 +180,7 @@ function User() {
               <ul>
                 {travelPlan.travelBasket?.basketItems.length ? (
                   travelPlan.travelBasket.basketItems.map((item) => (
-                    <li key={item.id}>
+                    <li key={item.id} className="basket-item">
                       <h5>{item.title}</h5>
                       <p>{item.address}</p>
                       <p>Rating: {item.rating}</p>

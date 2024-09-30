@@ -10,22 +10,17 @@ import BbsAnswer from "../bbs/BbsAnswer";
 import Register from "../member/Register";
 import Login from "../member/Login";
 import Logout from "../member/Logout";
-import Nav from "../app/Nav";
-import Main from "../app/Main";
 import Book from '../app/Book';
 import GoogleMaps from '../Api/GoogleMaps.tsx';
 import PlannerPage from "../planner/PlannerPage.js";
 import DateRangePicker from "../DateRangePicker/DateRangePicker.js";
 import User from "../member/user";
-
+import GPT from "../GPT/GPT";
 
 function Router() {
   return (
       <Routes>
         <Route path="/" element={<Home />} />
-        
-        <Route path="/nav" element={<Nav />} />
-        <Route path="/main" element={<Main />} />
 
         <Route path="/bbslist" element={<BbsList />} />
         <Route path="/bbswrite" element={<BbsWrite />} />
@@ -42,6 +37,7 @@ function Router() {
         <Route path="/PlannerPage" element={<PlannerPage />} />
         <Route path="/DateRangePicker" element={<DateRangePicker />} />
         <Route path="/user" element={<User />} />
+        <Route path="/gpt" element={<GPT />} />
       </Routes>
 
   );

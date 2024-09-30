@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import './GoogleMaps.css';
+import '../../assets/css/GoogleMaps.css';
 import Itemcontainer from './Itemcontainer';
 import DateRangePicker from '../DateRangePicker/DateRangePicker';
 
@@ -15,7 +15,7 @@ function GoogleMaps() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchTriggered, setSearchTriggered] = useState(false);
   const [pagination, setPagination] = useState(null);
-  const [selectedType, setSelectedType] = useState('lodging');
+  const [selectedType, setSelectedType] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [selectedHotel, setSelectedHotel] = useState(null);
@@ -30,6 +30,13 @@ function GoogleMaps() {
     { value: 'restaurant', label: '레스토랑' },
     { value: 'tourist_attraction', label: '관광 명소' }
   ];
+
+  const markerIcons = {
+    lodging: 'https://img.icons8.com/?size=100&id=bc9PfkZ8cbJC&format=png&color=000000', // 호텔 아이콘
+    restaurant: 'https://img.icons8.com/?size=100&id=lq7Ugy76e18x&format=png&color=000000', // 레스토랑 아이콘
+    tourist_attraction: 'https://img.icons8.com/?size=100&id=s8WkcTNjgu5O&format=png&color=000000' // 관광 명소 아이콘
+  };
+  
 
   useEffect(() => {
     if (!window.google) return;
@@ -64,81 +71,88 @@ function GoogleMaps() {
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
-    const startDateParam = queryParams.get('start');
-    const endDateParam = queryParams.get('end');
-    const daysCountParam = queryParams.get('daysCount');
-
-    if (startDateParam && endDateParam) {
-      setStartDate(new Date(startDateParam));
-      setEndDate(new Date(endDateParam));
-      if (daysCountParam) {
-        setDaysCount(Number(daysCountParam));
-      } else {
-        const totalDays = Math.ceil((new Date(endDateParam) - new Date(startDateParam)) / (1000 * 60 * 60 * 24) + 1);
-        setDaysCount(totalDays);
-      }
+    const destinationParam = queryParams.get('destination'); // destination 쿼리 파라미터 읽기
+    const categoryParam = queryParams.get('category'); // category 쿼리 파라미터 읽기
+    
+    // destination과 category가 모두 존재할 경우 검색어 설정 및 검색 실행
+    if (destinationParam) {
+      const searchQuery = categoryParam ? `${destinationParam} ${categoryParam}` : destinationParam;
+      setSearchTerm(searchQuery); // 검색어 설정
+      fetchPlaces(searchQuery); // 검색 실행
     }
-  }, [location.search]);
+  }, [location.search, googleMap, selectedType]); 
 
   useEffect(() => {
     if (!googleMap) return;
-    fetchPlaces(searchTerm);
+    if (searchTerm && selectedType) { // selectedType이 설정된 경우에만 검색 실행
+      fetchPlaces(searchTerm);
+    }
   }, [googleMap, searchTerm, selectedType]);
 
-  const updateMarkers = (hotels) => {
-    if (googleMap) {
-      markers.forEach(marker => marker.setMap(null));
+  useEffect(() => {
+    if (!googleMap) return;
 
-      const newMarkers = hotels.map(hotel => {
-        const position = { lat: hotel.lat, lng: hotel.lng };
+    // 기존 마커 제거
+    markers.forEach(marker => marker.setMap(null));
 
-        const marker = new window.google.maps.Marker({
-          position,
-          map: googleMap,
-          title: hotel.title,
-        });
+    // list2에 있는 항목으로 새로운 마커 생성
+    const newMarkers = list2.map(place => {
+      const position = { lat: place.lat, lng: place.lng };
 
-        const infoContent = `
-          <div>
-            <h3>${hotel.title}</h3>
-            <p>${hotel.address}</p>
-          </div>
-        `;
-        const infoWindow = new window.google.maps.InfoWindow({ content: infoContent });
-        marker.addListener('click', () => infoWindow.open(googleMap, marker));
+      // Find the marker icon based on place types
+      const category = place.types.find(type => markerIcons[type]);
+      const icon = {
+        url: category ? markerIcons[category] : 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png', // Marker icon URL
+        scaledSize: new window.google.maps.Size(40, 40), // Adjust marker size
+      };
 
-        return marker;
+      const marker = new window.google.maps.Marker({
+        position,
+        map: googleMap,
+        title: place.title,
+        icon: icon, // Set marker icon
       });
 
-      setMarkers(newMarkers);
-    }
-  };
+      // InfoWindow to show place details
+      const infoContent = `
+        <div>
+          <h3>${place.title}</h3>
+          <p>${place.address}</p>
+        </div>
+      `;
+      const infoWindow = new window.google.maps.InfoWindow({ content: infoContent });
+      marker.addListener('click', () => infoWindow.open(googleMap, marker));
+
+      return marker;
+    });
+
+    setMarkers(newMarkers);
+  }, [list2, googleMap]);
 
   const fetchPlaces = useCallback((searchTerm) => {
     if (!googleMap) return;
-
+  
     setLoading(true);
     const service = new window.google.maps.places.PlacesService(googleMap);
-
+  
     const mapCenter = googleMap.getCenter();
-
+  
     const request = {
       query: searchTerm,
-      type: [selectedType],
       fields: ['name', 'formatted_address', 'geometry', 'place_id', 'photos', 'types', 'price_level', 'international_phone_number', 'rating'],
       locationBias: new window.google.maps.Circle({
         center: mapCenter.toJSON(),
         radius: 5000,
       }),
+      language: 'kr',  // 검색 언어를 영어로 설정
     };
-
+  
     service.textSearch(request, (results, status, pagination) => {
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
         const placeData = results.map(place => ({
           title: place.name,
           address: place.formatted_address,
           image: place.photos && place.photos[0] ? place.photos[0].getUrl() : null,
-          imageUrl: place.photos && place.photos[0] ? place.photos[0].getUrl() : null,
           lat: place.geometry.location.lat(),
           lng: place.geometry.location.lng(),
           phone_number: place.international_phone_number,
@@ -146,12 +160,9 @@ function GoogleMaps() {
           url: place.url,
           types: place.types,
         }));
-
+  
         setHotels(placeData);
-        updateMarkers(placeData);
-
         initializeList1(placeData);
-        console.log(placeData);
         
         if (placeData.length > 0) {
           const avgLat = placeData.reduce((sum, place) => sum + place.lat, 0) / placeData.length;
@@ -159,19 +170,19 @@ function GoogleMaps() {
           googleMap.setCenter({ lat: avgLat, lng: avgLng });
           googleMap.setZoom(12);
         }
-
+  
         if (pagination && pagination.hasNextPage) {
           setPagination(() => pagination);
         } else {
           setPagination(null);
         }
-
+  
       } else {
         setError('장소를 가져오는 중 오류가 발생했습니다. 나중에 다시 시도해 주세요.');
       }
       setLoading(false);
     });
-  }, [googleMap, selectedType, updateMarkers]);
+  }, [googleMap]);
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -179,9 +190,14 @@ function GoogleMaps() {
 
   const handleSearchClick = () => {
     if (searchTerm.trim()) {
-      fetchPlaces(searchTerm);
+      handleCustomSearch(searchTerm); // 기존 검색어 사용
       setSearchTriggered(true);
     }
+  };
+  
+  const handleCustomSearch = (customTerm) => {
+    setSearchTerm(customTerm); // 원하는 값으로 searchTerm 업데이트
+    fetchPlaces(customTerm); // 업데이트된 값으로 검색 실행
   };
 
   const fetchMoreResults = () => {
@@ -228,7 +244,10 @@ function GoogleMaps() {
   };
 
   const handleTypeChange = (event) => {
-    setSelectedType(event.target.value);
+    const selectedCategory = event.target.value; // 선택된 카테고리
+    const newSearchTerm = `${searchTerm.split(' ')[0]} ${selectedCategory}`; // 현재 검색어에 카테고리 추가
+    setSearchTerm(newSearchTerm); // 검색어 업데이트
+    fetchPlaces(newSearchTerm); // 검색 실행
   };
 
   const handleApplyDateRange = () => {
@@ -240,11 +259,6 @@ function GoogleMaps() {
         prevList2.filter(hotel => !selectedHotels.includes(hotel)).concat(selectedHotels)
       );
     }
-  };
-
-  const handleClosePopup = () => {
-    setShowPopup(false);
-    setSelectedHotel(null);
   };
 
   useEffect(() => {
@@ -263,6 +277,24 @@ function GoogleMaps() {
     }
   }, [location.state]);
 
+  const fetchRecommendedPlaces = async () => {
+    try {
+      const response = await fetch('API_ENDPOINT_FOR_RECOMMENDATIONS'); // GPT 추천 여행지 API 호출
+      const data = await response.json();
+      const recommendedPlace = data.recommendation; // 추천 여행지 값
+      setSearchTerm(recommendedPlace); // 검색창에 추천 여행지 입력
+      fetchPlaces(recommendedPlace); // 추천 여행지로 검색 실행
+    } catch (error) {
+      console.error('추천 여행지 가져오기 오류:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecommendedPlaces(); // 컴포넌트 마운트 시 추천 여행지 호출
+  }, []);
+
+
+
   return (
     <div id="container">
       <div id="movebox">
@@ -272,9 +304,10 @@ function GoogleMaps() {
             setEndDate(endDate);
             handleApplyDateRange();
           }} />
-          <select value={selectedType} onChange={handleTypeChange}>
-            {placeTypes.map(type => (
-              <option key={type.value} value={type.value}>
+          <select onChange={handleTypeChange} value={selectedType}>
+            <option value="" disabled>카테고리를 선택하세요</option> {/* 기본 선택 옵션 추가 */}
+            {placeTypes.map((type) => (
+              <option key={type.label} value={type.label}>
                 {type.label}
               </option>
             ))}

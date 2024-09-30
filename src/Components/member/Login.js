@@ -2,9 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import PopupButton from '../common/Button/Popup_button';
-import '../../assets/sass/components/_modal.scss';
-import ErrorMessage from '../common/ErrorMessage/ErrorMessage';
+import './Login.css';
 
 function Login() {
   const { auth, tokens, updateAuth, clearAuth } = useContext(AuthContext);
@@ -21,10 +19,14 @@ function Login() {
   const changePw = (event) => setPw(event.target.value);
   const changeAuthEmail = (event) => setAuthEmail(event.target.value);
 
-  const handleJoinClick = () => setModalOpen(true);
+  const handleJoinClick = () => {
+    navigate('/register'); // 회원가입 페이지로 이동
+  };
+
   const handleUserClick = () => navigate('/user');
 
-  const login = async () => {
+  const login = async (event) => {
+    event.preventDefault(); // Prevent default form submission
     const req = { email, pw };
 
     try {
@@ -33,16 +35,13 @@ function Login() {
         withCredentials: true,
       });
 
-      console.log('Login response:', resp);
-
       if (resp.status === 200) {
         const data = resp.data.data;
 
         if (data) {
           const { userId, accessToken, refreshToken } = data;
-
           updateAuth(userId, accessToken, refreshToken);
-          navigate('/googlemaps');
+          navigate('/user'); // User 페이지로 이동하도록 변경
         } else {
           setError('로그인 실패: 응답 데이터가 유효하지 않습니다.');
         }
@@ -51,8 +50,7 @@ function Login() {
       }
     } catch (err) {
       console.error('Error during login:', err);
-      const errorMessage = err.response?.data?.message || '로그인 중 오류가 발생했습니다.';
-      setError(`⚠️ ${errorMessage}`);
+      setError('⚠️ 로그인 중 오류가 발생했습니다.');
     }
   };
 
@@ -73,6 +71,12 @@ function Login() {
     alert(`${auth}님, 성공적으로 로그아웃 됐습니다 🔒`);
     navigate("/");
   };
+
+  useEffect(() => {
+    if ( tokens.accessToken) {
+      navigate('/user'); // 토큰이 존재하면 /user 페이지로 이동
+    }
+  }, [tokens.accessToken, navigate]); // tokens, navigate 의존성 추가
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -100,46 +104,62 @@ function Login() {
   }, [auth]);
 
   return (
-    <div>
-      <ErrorMessage message={error} />
-      {auth ? (
-        <div>
-          <div className="my-1 d-flex justify-content-center">
-            <button className="btn btn-outline-danger" onClick={() => clearAuth()}>로그아웃</button>
-          </div>
-          <div className="user-info">
-            <h3>유저 정보</h3>
-            <p>로그인 완료! 유저 정보를 보려면 버튼을 클릭하세요.</p>
-            <button className="btn btn-outline-primary" onClick={handleUserClick}>
-              유저 정보 조회
-            </button>
+    <section className="login">
+      <div className="login_box">  
+        <div className="left">
+          <div className="top_link"><a href="#"><img src="https://drive.google.com/u/0/uc?id=16U__U5dJdaTfNGobB_OpwAJ73vM50rPV&export=download" alt="" />Return home</a></div>
+          <div className="contact">
+            <form onSubmit={login}>
+              <h3>SIGN IN</h3>
+              {error && <p className="error">{error}</p>}
+              <input
+                type="text"
+                placeholder="E-Mail"
+                value={email}
+                onChange={changeEmail}
+                required
+              />
+              <input
+                type="password"
+                placeholder="PASSWORD"
+                value={pw}
+                onChange={changePw}
+                required
+              />
+              <button 
+                type="button" 
+                className="submit" 
+                onClick={handleJoinClick}
+              >
+                회원가입
+              </button>
+              <button 
+                type="submit" 
+                className="submit"
+              >
+                로그인
+              </button>
+              <button 
+                type="button" 
+                className="submit" 
+                onClick={sendAuthEmail}
+              >
+                인증 이메일 전송
+              </button>
+            </form>
           </div>
         </div>
-      ) : (
-        <table className="table">
-          <tbody>
-            <tr>
-              <th>이메일</th>
-              <td>
-                <input type="text" value={email} onChange={changeEmail} size="50px" placeholder="이메일을 입력하세요"/>
-              </td>
-            </tr>
-            <tr>
-              <th>비밀번호</th>
-              <td>
-                <input type="password" value={pw} onChange={changePw} size="50px" placeholder="비밀번호를 입력하세요"/>
-              </td>
-            </tr>
-            <div className="my-1 d-flex justify-content-center">
-              <PopupButton buttonText="회원가입" onClick={handleJoinClick} />
-            </div>
-            <div className="my-1 d-flex justify-content-center">
-              <button className="btn btn-outline-secondary" onClick={login}>로그인</button>
-            </div>
-          </tbody>
-        </table>
-      )}
-    </div>
+        <div className="right">
+          <div className="right-text">
+            <h2>Hello, Friend</h2>
+            <h5>Enter your personal details and start journey with us</h5>
+          </div>
+          <div className="right-inductor">
+            <img src="https://res.cloudinary.com/dci1eujqw/image/upload/v1616769558/Codepen/waldemar-brandt-aThdSdgx0YM-unsplash_cnq4sb.jpg" alt="" />
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import './Planner.css';
+import '../../assets/css/Planner.css';
 
 function planner({ title, address, image, onClick  }) {
     return (

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext'; // AuthContext를 가져옵니다.
-import './PlannerPage.css';
+import '../../assets/css/PlannerPage.css';
 import Planner from './Planner';
 import axios from 'axios';
 
@@ -47,7 +47,7 @@ const PlannerPage = () => {
 
     const mapInstance = new window.google.maps.Map(container, {
       center: center,
-      zoom: 15,
+      zoom: 11,
       mapId: '92cb7201b7d43b21',
       disableDefaultUI: true,
       clickableIcons: false,
@@ -92,20 +92,21 @@ const PlannerPage = () => {
 
         let icon;
         if (hotel.types.includes('lodging')) {
-          icon = 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'; // 숙소 아이콘
-        } else if (index === 0) { // 시작 지점
-          icon = 'https://maps.google.com/mapfiles/ms/icons/hotel.png'; // 시작 지점 아이콘
-        } else if (index === hotels.length - 1) { // 종료 지점
-          icon = 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png'; // 종료 지점 아이콘
-        } else { // 일반 레스토랑
-          icon = 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'; // 레스토랑 아이콘
+          icon = 'https://img.icons8.com/?size=100&id=bc9PfkZ8cbJC&format=png&color=000000'; // 숙소 아이콘
+        } else if(hotel.types.includes('restaurant')) { 
+          icon = 'https://img.icons8.com/?size=100&id=lq7Ugy76e18x&format=png&color=000000'; // 레스토랑 아이콘
+        } else if(hotel.types.includes('tourist_attraction')) { 
+          icon = 'https://img.icons8.com/?size=100&id=s8WkcTNjgu5O&format=png&color=000000'; // 관광지 아이콘
         }
 
         const marker = new window.google.maps.Marker({
           position,
           map: map,
           title: hotel.title,
-          icon: icon,
+          icon: {
+            url: icon, 
+            scaledSize: new window.google.maps.Size(32, 32), // 아이콘 크기를 원하는 크기로 조절 (width, height)
+          },
         });
 
         const infoWindow = new window.google.maps.InfoWindow({
@@ -208,12 +209,6 @@ const PlannerPage = () => {
     return hotelContainers;
   };
 
-  const truncateUrl = (url, maxLength = 255) => {
-    if (url.length > maxLength) {
-      return url.substring(0, maxLength);
-    }
-    return url;
-  };
 
   const saveTravelPlan = async (event) => {
     event.preventDefault(); 
@@ -234,7 +229,7 @@ const PlannerPage = () => {
           title: hotel.title,
           address: hotel.address,
           rating: hotel.rating || 0,
-          imageUrl: truncateUrl(hotel.imageUrl || "string"),
+          imageUrl: hotel.imageUrl,
         })),
       },
     };
@@ -321,8 +316,23 @@ const PlannerPage = () => {
                 required
               />
             </div>
-            {renderHotelContainers()}
-            {renderRestaurantContainers()}
+            <div className="section-wrapper">
+            {/* 호텔 섹션 */}
+            <div className="hotel-section">
+              <h2>숙소</h2>
+              <div className="hotel-container-wrapper">
+                {renderHotelContainers()} {/* 호텔 컨테이너 렌더링 */}
+              </div>
+            </div>
+
+            {/* 레스토랑 섹션 */}
+            <div className="restaurant-section">
+              <h2>레스토랑</h2>
+              <div className="restaurant-container-wrapper">
+                {renderRestaurantContainers()} {/* 레스토랑 컨테이너 렌더링 */}
+              </div>
+            </div>
+          </div>
             {auth ? (
               <>
                 <button onClick={saveTravelPlan} className="save-button">여행 계획 저장</button>

@@ -1,0 +1,66 @@
+#planner-page {
+  display: flex; /* Flexbox로 레이아웃을 설정 */
+  flex-direction: row; /* 가로 방향으로 배치 */
+}
+
+#map-container {
+  flex: 1; /* 지도가 가능한 모든 공간을 차지하도록 설정 */
+  min-width: 400px; /* 최소 너비 설정 (필요에 따라 조정) */
+  min-height: 400px;
+}
+
+.planner-page-container{
+  margin-left: 15px;
+}
+
+.section-wrapper {
+  display: flex; /* Flexbox 사용 */
+  justify-content: space-between; /* 섹션 간 간격 조정 */
+  width: 100%; /* 전체 너비 사용 */
+  max-width: 1200px; /* 최대 너비 설정 (필요에 따라 조정) */
+  margin: 20px 0; /* 섹션 간의 간격 */
+}
+
+.hotel-section, .restaurant-section {
+  width: 48%; /* 각 섹션 너비 조정 (예: 48%씩) */
+  box-sizing: border-box; /* 패딩과 테두리가 너비에 포함되도록 설정 */
+}
+
+.hotel-container-wrapper, .restaurant-container-wrapper {
+  display: flex; /* Flexbox 사용 */
+  flex-direction: column; /* 세로로 정렬 */
+  max-height: 600px;
+  overflow-y: auto; /* 스크롤 가능하게 설정 */
+  border: 1px solid #ccc; /* 선택 사항: 경계선 추가 */
+  padding: 10px; /* 선택 사항: 내부 여백 추가 */
+  border: none; /* Border removed */
+  box-shadow: none;
+}
+
+.hotel-container {
+  padding: 10px;
+  margin-bottom: 10px; /* 섹션 간의 간격 */
+}
+
+.restaurant-container {
+  padding: 10px;
+  margin-bottom: 10px; /* 섹션 간의 간격 */
+}
+
+*::-webkit-scrollbar {
+  width: 12px; /* 스크롤바 너비 */
+}
+
+*::-webkit-scrollbar-track {
+  background: #D3D3D3; /* 스크롤바 배경색 */
+  border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #87CEEB; /* 스크롤바 슬라이더 색상 */
+  border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #0047AB; /* 스크롤바 슬라이더 호버 색상 */
+}

@@ -1,0 +1,66 @@
+.main-container {
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.user-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.user-info label {
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+}
+
+.logout-button {
+  background-color: #63C6E6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.logout-button:hover {
+  background-color: #55b3d3;
+}
+
+h2 {
+  margin: 20px 0 10px;
+  font-size: 24px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+}
+
+.delete-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.basket-item {
+  margin: 10px 0;
+  border: 1px solid #f9f9f9;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.basket-item img {
+  margin-top: 10px;
+}

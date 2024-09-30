@@ -50,6 +50,10 @@ function Register() {
     }
   };
 
+  const goToLogin = () => {
+    navigate('/login'); // 로그인 페이지로 이동
+  };
+
   return (
     <div>
       <table className="table">
@@ -99,6 +103,12 @@ function Register() {
       <div className="my-3 d-flex justify-content-center">
         <button className="btn btn-outline-secondary" onClick={register}>
           <i className="fas fa-user-plus"></i> 회원가입
+        </button>
+      </div>
+
+      <div className="my-3 d-flex justify-content-center">
+        <button className="btn btn-outline-primary" onClick={goToLogin}>
+          <i className="fas fa-sign-in-alt"></i>돌아가기
         </button>
       </div>
     </div>

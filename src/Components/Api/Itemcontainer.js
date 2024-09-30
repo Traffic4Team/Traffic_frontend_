@@ -1,5 +1,5 @@
 import React from 'react';
-import './Itemcontainer.css';
+import '../../assets/css/Itemcontainer.css';
 
 function Itemcontainer({ title, image, onClick, rating, address }) {
 
