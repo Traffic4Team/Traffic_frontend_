@@ -122,16 +122,15 @@ function GoogleMaps() {
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
-    const destinationParam = queryParams.get('destination'); // destination 쿼리 파라미터 읽기
-    const categoryParam = queryParams.get('category'); // category 쿼리 파라미터 읽기
+    const destinationParam = queryParams.get('destination');
+    const categoryParam = queryParams.get('category');
     
-    // destination과 category가 모두 존재할 경우 검색어 설정 및 검색 실행
     if (destinationParam) {
-        const searchQuery = categoryParam ? `${destinationParam} ${categoryParam}` : destinationParam;
-        setSearchTerm(searchQuery); // 검색어 설정
-        fetchPlaces(searchQuery); // 검색 실행
+      const searchQuery = categoryParam ? `${destinationParam} ${categoryParam}` : destinationParam;
+      setSearchTerm(searchQuery);
+      fetchPlaces(searchQuery);
     }
-  }, [location.search, googleMap, selectedType, fetchPlaces]);
+  }, [location.search, googleMap, selectedType, fetchPlaces]); 
 
   useEffect(() => {
     if (!googleMap) return;
