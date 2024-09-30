@@ -6,12 +6,10 @@ import { HttpHeadersContext } from "../context/HttpHeadersProvider";
 
 function BbsAnswer() {
 
-	const { auth, setAuth } = useContext(AuthContext)
-	const { headers, setHeaders } = useContext(HttpHeadersContext);
+	const { auth} = useContext(AuthContext)
+	const { headers} = useContext(HttpHeadersContext);
 
 	const navigate = useNavigate();
-
-	const { parentSeq } = useParams(); // 부모 글 번호
 
 	const location = useLocation();
 	const { parentBbs } = location.state;

@@ -13,7 +13,7 @@ function GoogleMaps() {
   const [list1, setList1] = useState([]);
   const [list2, setList2] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchTriggered, setSearchTriggered] = useState(false);
+  const [setSearchTriggered] = useState(false);
   const [pagination, setPagination] = useState(null);
   const [selectedType] = useState('');
   const [startDate, setStartDate] = useState(null);
@@ -207,7 +207,6 @@ function GoogleMaps() {
 
   const initializeList1 = (data) => {
     if (data.length > 0) {
-      const totalDays = daysCount || data.length;
       const half = Math.ceil(data.length / 2);
       setList1(data.slice(0, half));
     }

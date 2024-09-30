@@ -25,7 +25,7 @@ const GPT = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
-  const [selectedDestination, setSelectedDestination] = useState(null);
+  const [setSelectedDestination] = useState(null);
   const [showCalendar, setShowCalendar] = useState(true);
   const navigate = useNavigate();
 

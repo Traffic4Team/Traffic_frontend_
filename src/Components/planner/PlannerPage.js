@@ -15,10 +15,6 @@ const PlannerPage = () => {
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [routeInfo, setRouteInfo] = useState([]);
-  const [travelPlan, setTravelPlan] = useState(null);
-  const [travelPlanId, setTravelPlanId] = useState(1); 
-  const [loading, setLoading] = useState(false); 
-  const [error, setError] = useState(null); 
   const [title, setTitle] = useState(''); 
   const [content, setContent] = useState('');
   

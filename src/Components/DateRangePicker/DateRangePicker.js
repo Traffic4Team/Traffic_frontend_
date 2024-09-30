@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, addMonths, subMonths, isBefore, isAfter } from 'date-fns';  
 import { useDateContext } from '../../context/DateContext'; 
-import { useNavigate } from 'react-router-dom';
 import '../../assets/css/DateRangePicker.css'; 
 
 const DateRangePicker = ({ onDateRangeSelect }) => {
   const { selectedStartDate, selectedEndDate, setSelectedStartDate, setSelectedEndDate } = useDateContext();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const navigate = useNavigate();
 
   const startCurrentMonth = startOfMonth(currentDate);
   const endCurrentMonth = endOfMonth(currentDate);

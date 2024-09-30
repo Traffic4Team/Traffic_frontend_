@@ -6,7 +6,7 @@ import { HttpHeadersContext } from "../context/HttpHeadersProvider";
 
 function CommentWrite(props) {
 
-	const { headers, setHeaders } = useContext(HttpHeadersContext);
+	const { headers} = useContext(HttpHeadersContext);
 
 	const id = localStorage.getItem("id");
 	const seq = props.seq;

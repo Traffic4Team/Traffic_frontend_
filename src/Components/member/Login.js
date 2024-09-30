@@ -11,9 +11,8 @@ function Login() {
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
   const [authEmail, setAuthEmail] = useState('');
-  const [modalOpen, setModalOpen] = useState(false);
   const [error, setError] = useState('');
-  const [userInfo, setUserInfo] = useState(null);
+  const [setUserInfo] = useState(null);
 
   const changeEmail = (event) => setEmail(event.target.value);
   const changePw = (event) => setPw(event.target.value);
@@ -64,12 +63,6 @@ function Login() {
     } catch (err) {
       alert('인증 이메일 전송 중 오류가 발생했습니다.');
     }
-  };
-
-  const logout = () => {
-    clearAuth();
-    alert(`${auth}님, 성공적으로 로그아웃 됐습니다 🔒`);
-    navigate("/");
   };
 
   useEffect(() => {
