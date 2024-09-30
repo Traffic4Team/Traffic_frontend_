@@ -1,4 +1,3 @@
-import Router from "../router/Router";
 import { Link } from "react-router-dom";
 
 function Book() {

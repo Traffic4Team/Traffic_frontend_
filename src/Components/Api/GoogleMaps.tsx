@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo  } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../../assets/css/GoogleMaps.css';
 import Itemcontainer from './Itemcontainer';
@@ -28,11 +28,11 @@ function GoogleMaps() {
     { value: 'tourist_attraction', label: '관광 명소' }
   ];
 
-  const markerIcons = {
-    lodging: 'https://img.icons8.com/?size=100&id=bc9PfkZ8cbJC&format=png&color=000000', // 호텔 아이콘
-    restaurant: 'https://img.icons8.com/?size=100&id=lq7Ugy76e18x&format=png&color=000000', // 레스토랑 아이콘
-    tourist_attraction: 'https://img.icons8.com/?size=100&id=s8WkcTNjgu5O&format=png&color=000000' // 관광 명소 아이콘
-  };
+  const markerIcons = useMemo(() => ({
+    lodging: 'https://img.icons8.com/?size=100&id=bc9PfkZ8cbJC&format=png&color=000000',
+    restaurant: 'https://img.icons8.com/?size=100&id=lq7Ugy76e18x&format=png&color=000000',
+    tourist_attraction: 'https://img.icons8.com/?size=100&id=s8WkcTNjgu5O&format=png&color=000000'
+  }), []);
   
 
   useEffect(() => {
@@ -67,16 +67,16 @@ function GoogleMaps() {
   }, []);
 
   useEffect(() => {
-      const queryParams = new URLSearchParams(location.search);
-      const destinationParam = queryParams.get('destination'); // destination 쿼리 파라미터 읽기
-      const categoryParam = queryParams.get('category'); // category 쿼리 파라미터 읽기
-      
-      // destination과 category가 모두 존재할 경우 검색어 설정 및 검색 실행
-      if (destinationParam) {
-          const searchQuery = categoryParam ? `${destinationParam} ${categoryParam}` : destinationParam;
-          setSearchTerm(searchQuery); // 검색어 설정
-          fetchPlaces(searchQuery); // 검색 실행
-      }
+    const queryParams = new URLSearchParams(location.search);
+    const destinationParam = queryParams.get('destination'); // destination 쿼리 파라미터 읽기
+    const categoryParam = queryParams.get('category'); // category 쿼리 파라미터 읽기
+    
+    // destination과 category가 모두 존재할 경우 검색어 설정 및 검색 실행
+    if (destinationParam) {
+        const searchQuery = categoryParam ? `${destinationParam} ${categoryParam}` : destinationParam;
+        setSearchTerm(searchQuery); // 검색어 설정
+        fetchPlaces(searchQuery); // 검색 실행
+    }
   }, [location.search, googleMap, selectedType, fetchPlaces]);
 
   useEffect(() => {

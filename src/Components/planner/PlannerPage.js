@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext'; // AuthContext를 가져옵니다.
 import '../../assets/css/PlannerPage.css';
@@ -7,7 +7,6 @@ import axios from 'axios';
 
 const PlannerPage = () => {
   const location = useLocation();
-  const hotels = location.state?.hotels || [];
   const { auth, tokens } = useAuth();  
   const [map, setMap] = useState(null);
   const [directionsService, setDirectionsService] = useState(null);
@@ -18,7 +17,7 @@ const PlannerPage = () => {
   const [title, setTitle] = useState(''); 
   const [content, setContent] = useState('');
   
-
+  const hotels = useMemo(() => location.state?.hotels || [], [location.state]);
 
 
   // 지도 및 DirectionsService, DirectionsRenderer 인스턴스 생성
@@ -125,7 +124,7 @@ const PlannerPage = () => {
       map.markers = markers;
 
       // restaurant 유형의 장소만 필터링하여 경로 그리기
-      const restaurantHotels = hotels.filter(hotel =>
+      const restaurantHotels = hotels.filter(hotel => 
         (hotel.types.includes('restaurant') && !hotel.types.includes('lodging')) || hotel.types.includes('tourist_attraction')
       );
 
@@ -244,8 +243,8 @@ const PlannerPage = () => {
       );
       console.log('Travel plan created successfully:', response.data);
     } catch (error) {
-      console.error('Travel plan creation failed:', error);
-      alert("여행 계획 생성 중 오류가 발생했습니다.");
+      console.error('Error creating travel plan:', error);
+      alert('여행 계획 저장에 실패했습니다.');
     }
   };
   

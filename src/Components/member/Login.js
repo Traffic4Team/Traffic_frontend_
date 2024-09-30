@@ -5,14 +5,14 @@ import { AuthContext } from '../../context/AuthContext';
 import './Login.css';
 
 function Login() {
-  const { auth, tokens, updateAuth} = useContext(AuthContext);
+  const { auth, tokens, updateAuth } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
-  const [authEmail, setAuthEmail] = useState('');
+  const [authEmail] = useState('');
   const [error, setError] = useState('');
-  const [setUserInfo] = useState(null); // 수정된 부분
+  const [userInfo, setUserInfo] = useState(null); // 수정된 부분: 상태를 추가함
 
   const changeEmail = (event) => setEmail(event.target.value);
   const changePw = (event) => setPw(event.target.value);
@@ -20,7 +20,6 @@ function Login() {
   const handleJoinClick = () => {
     navigate('/register'); // 회원가입 페이지로 이동
   };
-
 
   const login = async (event) => {
     event.preventDefault(); // Prevent default form submission
@@ -92,13 +91,12 @@ function Login() {
     } else {
       setUserInfo(null);
     }
-  }, [auth]);
+  }, [auth]); // setUserInfo를 의존성 배열에 추가할 필요 없음
 
   return (
     <section className="login">
       <div className="login_box">  
         <div className="left">
-          <div className="top_link"><a href="#"><img src="https://drive.google.com/u/0/uc?id=16U__U5dJdaTfNGobB_OpwAJ73vM50rPV&export=download" alt="" />Return home</a></div>
           <div className="contact">
             <form onSubmit={login}>
               <h3>SIGN IN</h3>
