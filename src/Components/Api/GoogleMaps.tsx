@@ -78,14 +78,14 @@ function GoogleMaps() {
       setSearchTerm(searchQuery); // 검색어 설정
       fetchPlaces(searchQuery); // 검색 실행
     }
-  }, [location.search, googleMap, selectedType]); 
+  }, [location.search, googleMap, selectedType, fetchPlaces]); 
 
   useEffect(() => {
     if (!googleMap) return;
     if (searchTerm && selectedType) { // selectedType이 설정된 경우에만 검색 실행
       fetchPlaces(searchTerm);
     }
-  }, [googleMap, searchTerm, selectedType]);
+  }, [googleMap, searchTerm, selectedType, fetchPlaces]);
 
   useEffect(() => {
     if (!googleMap) return;
@@ -125,7 +125,7 @@ function GoogleMaps() {
     });
 
     setMarkers(newMarkers);
-  }, [list2, googleMap]);
+  }, [list2, googleMap, markerIcons]);
 
   const fetchPlaces = useCallback((searchTerm) => {
     if (!googleMap) return;
@@ -195,7 +195,7 @@ function GoogleMaps() {
   
   const handleCustomSearch = (customTerm) => {
     setSearchTerm(customTerm); // 원하는 값으로 searchTerm 업데이트
-    fetchPlaces(customTerm); // 업데이트된 값으로 검색 실행
+    (customTerm); // 업데이트된 값으로 검색 실행
   };
 
   const fetchMoreResults = () => {
