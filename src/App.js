@@ -2,15 +2,13 @@ import React from 'react';
 import { BrowserRouter, useLocation } from 'react-router-dom';
 import Sidebar from './Components/app/Sidebar';
 import Router from "./Components/router/Router";
-import Footer from "./Components/app/Footer";
 import { AuthProvider } from "./context/AuthContext";
 import { DateProvider } from './context/DateContext'; // 경로 수정
 import "./App.css";
 
 const AppContent = () => {
   const location = useLocation();
-
-  // Sidebar와 Footer를 숨길 경로 정의
+  
   const hideLayout = ["/"]; // 숨기고 싶은 경로 추가
   
 

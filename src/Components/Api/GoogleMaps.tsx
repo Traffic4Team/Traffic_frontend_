@@ -13,13 +13,11 @@ function GoogleMaps() {
   const [list1, setList1] = useState([]);
   const [list2, setList2] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchTriggered, setSearchTriggered] = useState(false);
+  const [ setSearchTriggered] = useState(false);
   const [pagination, setPagination] = useState(null);
-  const [selectedType, setSelectedType] = useState('');
+  const [selectedType] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [selectedHotel, setSelectedHotel] = useState(null);
-  const [showPopup, setShowPopup] = useState(false);
   const [daysCount, setDaysCount] = useState(0);
 
   const navigate = useNavigate();
