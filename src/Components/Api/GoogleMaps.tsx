@@ -195,8 +195,10 @@ function GoogleMaps() {
   
   const handleCustomSearch = (customTerm) => {
     setSearchTerm(customTerm); // 원하는 값으로 searchTerm 업데이트
-    (customTerm); // 업데이트된 값으로 검색 실행
-  };
+
+    // 검색을 실행하는 fetchPlaces 함수를 호출
+    fetchPlaces(customTerm); // 업데이트된 값으로 검색 실행
+};
 
   const fetchMoreResults = () => {
     if (pagination && pagination.hasNextPage) {
