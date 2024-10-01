@@ -78,7 +78,7 @@ const GPT = () => {
       setError(null);
   
       try {
-        const res = await axios.post('/travelplan/gpt/domestic', formData, {
+        const res = await axios.post('https://trafficbackend.shop/travelplan/gpt/domestic', formData, {
           headers: {
             'Content-Type': 'application/json',
           },
@@ -86,7 +86,7 @@ const GPT = () => {
   
         const { recommendations } = res.data.data;
         setRecommendations(recommendations);
-
+  
         setChatHistory((prevHistory) => [
           ...prevHistory,
           { type: 'question', text: '추천 여행지를 생성 중입니다...' },

@@ -87,5 +87,5 @@
   "resolutions": {
     "mini-css-extract-plugin": "2.4.5"
   },
-  "proxy": "http://ec2-43-203-192-225.ap-northeast-2.compute.amazonaws.com:8080"
+  "proxy": "https://trafficbackend.shop"
 }

@@ -29,7 +29,7 @@ function Register() {
     };
 
     try {
-      const resp = await axios.post('http://ec2-43-203-192-225.ap-northeast-2.compute.amazonaws.com:8080/user/register', req, {
+      const resp = await axios.post('https://trafficbackend.shop/user/register', req, {
         withCredentials: true,
       });
       console.log('[Register.js] Register() success :D');

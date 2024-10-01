@@ -232,7 +232,7 @@ const PlannerPage = () => {
   
     try {
       const response = await axios.post(
-        `http://ec2-43-203-192-225.ap-northeast-2.compute.amazonaws.com:8080/user/${userId}/travel-plans`,
+        `https://trafficbackend.shop/user/${userId}/travel-plans`,
         travelPlanData, // 전송할 데이터를 JSON 객체로 전송
         {
           headers: {

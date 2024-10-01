@@ -29,12 +29,12 @@ function User() {
       if (!userId) return;
 
       try {
-        const response = await axios.get(`http://ec2-43-203-192-225.ap-northeast-2.compute.amazonaws.com:8080/user/${userId}`);
+        const response = await axios.get(`https://trafficbackend.shop/user/${userId}`);
         if (response.status === 200) {
           setUserInfo(response.data.data);
           setEditableUserInfo(response.data.data);
 
-          const travelPlansResponse = await axios.get(`http://ec2-43-203-192-225.ap-northeast-2.compute.amazonaws.com:8080/user/${userId}/travel-plans`);
+          const travelPlansResponse = await axios.get(`https://trafficbackend.shop/user/${userId}/travel-plans`);
           setTravelPlans(travelPlansResponse.data.data);
         } else {
           setError('유저 정보 조회 실패');
@@ -59,7 +59,7 @@ function User() {
     setError(null);
 
     try {
-      const response = await axios.get(`http://ec2-43-203-192-225.ap-northeast-2.compute.amazonaws.com:8080/user/${userId}/travel-plans/${travelPlanId}`);
+      const response = await axios.get(`https://trafficbackend.shop/user/${userId}/travel-plans/${travelPlanId}`);
       console.log('여행 계획 조회 성공:', response.data);
       setTravelPlan(response.data.data);
     } catch (error) {
@@ -81,7 +81,7 @@ function User() {
 
     setLoading(true);
     try {
-      const response = await axios.delete(`http://ec2-43-203-192-225.ap-northeast-2.compute.amazonaws.com:8080/user/${userId}/travel-plans/${planId}`);
+      const response = await axios.delete(`https://trafficbackend.shop/user/${userId}/travel-plans/${planId}`);
       if (response.status === 200) {
         setTravelPlans(travelPlans.filter(plan => plan.id !== planId));
         setTravelPlan(null);

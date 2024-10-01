@@ -26,7 +26,7 @@ function Login() {
     const req = { email, pw };
 
     try {
-      const resp = await axios.post('http://ec2-43-203-192-225.ap-northeast-2.compute.amazonaws.com:8080/user/signIn', req, {
+      const resp = await axios.post('https://trafficbackend.shop/user/signIn', req, {
         headers: { 'Content-Type': 'application/json' },
         withCredentials: true,
       });
@@ -52,7 +52,7 @@ function Login() {
 
   const sendAuthEmail = async () => {
     try {
-      await axios.get('http://ec2-43-203-192-225.ap-northeast-2.compute.amazonaws.com:8080/user/email/send-email', {
+      await axios.get('https://trafficbackend.shop/user/email/send-email', {
         params: { email: authEmail },
         headers: { 'Content-Type': 'application/json' },
       });
@@ -73,7 +73,7 @@ function Login() {
       const userId = localStorage.getItem('userId');
       if (userId) {
         try {
-          const response = await axios.get(`http://ec2-43-203-192-225.ap-northeast-2.compute.amazonaws.com:8080/user/${userId}`);
+          const response = await axios.get(`https://trafficbackend.shop/user/${userId}`);
           if (response.status === 200) {
             setUserInfo(response.data.data);
           } else {
