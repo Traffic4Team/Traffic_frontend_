@@ -13,15 +13,19 @@ function GoogleMaps() {
   const [list1, setList1] = useState([]);
   const [list2, setList2] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [setSearchTriggered] = useState(false);  const [pagination, setPagination] = useState(null);
-  const [selectedType] = useState('');
+  const [searchTriggered, setSearchTriggered] = useState(false);
+  const [pagination, setPagination] = useState(null);
+  const [selectedType, setSelectedType] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [daysCount, setDaysCount] = useState(0);
+  const [destination, setDestination] = useState('');
+  const [placeDetails, setPlaceDetails] = useState(null);
   
 
   const navigate = useNavigate();
   const location = useLocation();
+  const infoWindow = useMemo(() => new window.google.maps.InfoWindow(), []);
 
   const placeTypes = [
     { value: 'lodging', label: '호텔' },
@@ -32,7 +36,8 @@ function GoogleMaps() {
   const markerIcons = useMemo(() => ({
     lodging: 'https://img.icons8.com/?size=100&id=bc9PfkZ8cbJC&format=png&color=000000',
     restaurant: 'https://img.icons8.com/?size=100&id=lq7Ugy76e18x&format=png&color=000000',
-    tourist_attraction: 'https://img.icons8.com/?size=100&id=s8WkcTNjgu5O&format=png&color=000000'
+    tourist_attraction: 'https://img.icons8.com/?size=100&id=s8WkcTNjgu5O&format=png&color=000000',
+    default: 'https://img.icons8.com/?size=100&id=s8WkcTNjgu5O&format=png&color=000000',
   }), []);
   
 
@@ -57,6 +62,7 @@ function GoogleMaps() {
       setLoading(false);
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
         const placeData = results.map(place => ({
+          id: place.place_id,
           title: place.name,
           address: place.formatted_address,
           image: place.photos && place.photos[0] ? place.photos[0].getUrl() : null,
@@ -67,9 +73,11 @@ function GoogleMaps() {
           url: place.url,
           types: place.types,
         }));
-  
+        
+        console.log(placeData);
         setHotels(placeData);
         initializeList1(placeData);
+
         if (placeData.length > 0) {
           const avgLat = placeData.reduce((sum, place) => sum + place.lat, 0) / placeData.length;
           const avgLng = placeData.reduce((sum, place) => sum + place.lng, 0) / placeData.length;
@@ -126,6 +134,7 @@ function GoogleMaps() {
     const categoryParam = queryParams.get('category');
     
     if (destinationParam) {
+      setDestination(destinationParam);
       const searchQuery = categoryParam ? `${destinationParam} ${categoryParam}` : destinationParam;
       setSearchTerm(searchQuery);
       fetchPlaces(searchQuery);
@@ -148,7 +157,7 @@ function GoogleMaps() {
     // Add new markers for list2
     const newMarkers = list2.map(place => {
       const position = { lat: place.lat, lng: place.lng };
-      const category = place.types.find(type => markerIcons[type]);
+      const category = place.types.find(type => markerIcons[type]) || 'default';
       const icon = {
         url: category ? markerIcons[category] : 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png',
         scaledSize: new window.google.maps.Size(40, 40),
@@ -163,10 +172,13 @@ function GoogleMaps() {
   
       // Use a single InfoWindow
       marker.addListener('click', () => {
+        const details = placeDetails[place.id] || {};
         const infoWindowContent = `
-          <div>
+          <div class="infowindow-content">
+            ${place.image ? `<img src="${place.image}" alt="${place.title}" style="width:100px; height:auto;" />` : '<p>이미지가 없습니다.</p>'}
             <h3>${place.title}</h3>
             <p>${place.address}</p>
+            ${details.website ? `<a href="${details.website}" target="_blank" rel="noopener noreferrer">웹사이트 방문하기</a>` : ''}
           </div>
         `;
         infoWindow.setContent(infoWindowContent);
@@ -174,10 +186,10 @@ function GoogleMaps() {
       });
   
       return marker;
-    });
+    }).filter(marker => marker !== null);
   
     setMarkers(newMarkers);
-  }, [list2, googleMap, markerIcons, markers]);
+  }, [list2, googleMap, markerIcons]);
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -213,27 +225,13 @@ function GoogleMaps() {
     }
   };
 
-  const handleItemClick = (item, listName) => {
-    if (selectedType === 'lodging') {
-      if (listName === 'list1') {
-        if (list2.length < daysCount - 1) {
-          setList1(prevList1 => prevList1.filter(i => i !== item));
-          setList2(prevList2 => [...prevList2, item]);
-        } else {
-          alert(`최대 ${daysCount - 1}개 항목만 추가할 수 있습니다.`);
-        }
-      } else if (listName === 'list2') {
-        setList2(prevList2 => prevList2.filter(i => i !== item));
-        setList1(prevList1 => [...prevList1, item]);
-      }
+  const handleItemClick = async (item, listName) => {
+    if (listName === 'list1') {
+      setList1(prev => prev.filter(i => i !== item));
+      setList2(prev => [...new Set([...prev, item])]);
     } else {
-      if (listName === 'list1') {
-        setList1(prevList1 => prevList1.filter(i => i !== item));
-        setList2(prevList2 => [...prevList2, item]);
-      } else if (listName === 'list2') {
-        setList2(prevList2 => prevList2.filter(i => i !== item));
-        setList1(prevList1 => [...prevList1, item]);
-      }
+      setList2(prev => prev.filter(i => i !== item));
+      setList1(prev => [...new Set([...prev, item])]);
     }
   };
 
@@ -280,6 +278,7 @@ function GoogleMaps() {
       const response = await fetch('API_ENDPOINT_FOR_RECOMMENDATIONS');
       const data = await response.json();
       const recommendedPlace = data.recommendation;
+
       setSearchTerm(recommendedPlace);
       fetchPlaces(recommendedPlace);
     } catch (error) {
@@ -291,66 +290,101 @@ function GoogleMaps() {
     fetchRecommendedPlaces();
   }, [fetchRecommendedPlaces]);
 
+  useEffect(() => {
+    const fetchPlaceDetails = (id) => {
+      if (!googleMap) return;
+  
+      const service = new window.google.maps.places.PlacesService(googleMap);
+  
+      service.getDetails({ placeId: id }, (place, status) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+          setPlaceDetails(prevDetails => ({
+            ...prevDetails,
+            [id]: {
+              website: place.website || '',
+              url: place.url || '',
+            },
+          }));
+        } else {
+          console.error(`Failed to fetch details for ID: ${id}`);
+        }
+      });
+    };
+  
+    // 각 호텔의 ID로 세부 정보 불러오기
+    hotels.forEach((hotel) => {
+      fetchPlaceDetails(hotel.id);
+    });
+  }, [hotels, googleMap]);
+
 
 
   return (
     <div id="container">
       <div id="movebox">
         <div id="search">
+          <h3 id="movebox-title">{destination ? `${destination}` : '여행 계획을 선택하세요'}</h3>
           <DateRangePicker onDateRangeSelect={({ startDate, endDate }) => {
             setStartDate(startDate);
             setEndDate(endDate);
             handleApplyDateRange();
           }} />
           <select onChange={handleTypeChange} value={selectedType}>
-            <option value="" disabled>카테고리를 선택하세요</option> {/* 기본 선택 옵션 추가 */}
+            <option value="" disabled>카테고리를 선택하세요</option>
             {placeTypes.map((type) => (
               <option key={type.label} value={type.label}>
                 {type.label}
               </option>
             ))}
           </select>
-          <input
-            type="text"
-            id="search-input"
-            value={searchTerm}
-            onChange={handleSearchChange}
-            placeholder={`${selectedType === 'lodging' ? '호텔' : selectedType === 'tourist_attraction' ? '관광 명소' : '레스토랑'}을 검색하세요...`}
-          />
-          <button
-            id="search-button"
-            onClick={handleSearchClick}
-          >
-            검색
-          </button>
+
+          <form className="search-container">
+            <input
+              type="text"
+              id="search-bar"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              placeholder={`${selectedType === 'lodging' ? '호텔' : selectedType === 'tourist_attraction' ? '관광 명소' : '레스토랑'}을 검색하세요...`}
+            />
+            <a href="#" onClick={handleSearchClick}>
+              <img className="search-icon" src="http://www.endlessicons.com/wp-content/uploads/2012/12/search-icon.png" alt="search icon" />
+            </a>
+          </form>
+        
         </div>
         {loading && <p>로딩 중...</p>}
         {error && <p>{error}</p>}
         <div className="list-container">
-          <div className="list">
-            {list1.map((item, index) => (
-              <Itemcontainer
-                image={item.image}
-                key={index}
-                title={item.title}
-                onClick={() => handleItemClick(item, 'list1')}
-                rating={item.rating}
-                address={item.address}
-              />
-            ))}
+          <div className="list-header">
+            <h2>장소 선택</h2>
+            <div className="list">
+              {list1.map((item, index) => (
+                <Itemcontainer
+                  image={item.image}
+                  key={index}
+                  title={item.title}
+                  onClick={() => handleItemClick(item, 'list1')}
+                  rating={item.rating}
+                  address={item.address}
+                />
+              ))}
+            </div>
           </div>
-          <div className="list">
-            {list2.map((item, index) => (
-              <Itemcontainer
-                image={item.image}
-                key={index}
-                title={item.title}
-                onClick={() => handleItemClick(item, 'list2')}
-                rating={item.rating}
-                address={item.address}
-              />
-            ))}
-          </div>
+          <div className="list-header">
+            <h2>선택된 장소</h2>
+            <div className="list">
+              {list2.map((item, index) => (
+                <Itemcontainer
+                  image={item.image}
+                  key={index}
+                  title={item.title}
+                  onClick={() => handleItemClick(item, 'list2')}
+                  rating={item.rating}
+                  address={item.address}
+                />
+              ))}
+            </div>
+            </div>
         </div>
         {pagination && (
           <button

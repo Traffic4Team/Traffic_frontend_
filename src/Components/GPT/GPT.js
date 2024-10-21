@@ -3,6 +3,7 @@ import axios from 'axios';
 import DateRangePicker from '../DateRangePicker/DateRangePicker.js';
 import '../../assets/css/GPT.css';
 import { useNavigate } from 'react-router-dom'; 
+import axiosInstance from '../../utils/axiosInstance';
 
 const GPT = () => {
   const questions = [
@@ -25,7 +26,7 @@ const GPT = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
-  const [setSelectedDestination] = useState(null);
+  const [selectedDestination, setSelectedDestination] = useState(null);
   const [showCalendar, setShowCalendar] = useState(true);
   const navigate = useNavigate();
 
@@ -78,7 +79,7 @@ const GPT = () => {
       setError(null);
   
       try {
-        const res = await axios.post('https://trafficbackend.shop/travelplan/gpt/domestic', formData, {
+        const res = await axiosInstance.post('/travelplan/gpt/domestic', formData, {
           headers: {
             'Content-Type': 'application/json',
           },

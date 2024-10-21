@@ -6,11 +6,13 @@
 #map-container {
   flex: 1; /* 지도가 가능한 모든 공간을 차지하도록 설정 */
   min-width: 400px; /* 최소 너비 설정 (필요에 따라 조정) */
-  min-height: 400px;
+  min-height: 400px; /* 최소 높이 설정 */
+  max-width: 600px; /* 최대 너비 설정 */
 }
 
-.planner-page-container{
+.planner-page-container {
   margin-left: 15px;
+  flex: 0 0 600px; /* 최소 너비 600px */
 }
 
 .section-wrapper {
@@ -21,31 +23,6 @@
   margin: 20px 0; /* 섹션 간의 간격 */
 }
 
-.hotel-section, .restaurant-section {
-  width: 48%; /* 각 섹션 너비 조정 (예: 48%씩) */
-  box-sizing: border-box; /* 패딩과 테두리가 너비에 포함되도록 설정 */
-}
-
-.hotel-container-wrapper, .restaurant-container-wrapper {
-  display: flex; /* Flexbox 사용 */
-  flex-direction: column; /* 세로로 정렬 */
-  max-height: 600px;
-  overflow-y: auto; /* 스크롤 가능하게 설정 */
-  border: 1px solid #ccc; /* 선택 사항: 경계선 추가 */
-  padding: 10px; /* 선택 사항: 내부 여백 추가 */
-  border: none; /* Border removed */
-  box-shadow: none;
-}
-
-.hotel-container {
-  padding: 10px;
-  margin-bottom: 10px; /* 섹션 간의 간격 */
-}
-
-.restaurant-container {
-  padding: 10px;
-  margin-bottom: 10px; /* 섹션 간의 간격 */
-}
 
 *::-webkit-scrollbar {
   width: 12px; /* 스크롤바 너비 */
@@ -64,3 +41,72 @@
 *::-webkit-scrollbar-thumb:hover {
   background: #0047AB; /* 스크롤바 슬라이더 호버 색상 */
 }
+
+/* 팝업 스타일 설정 */
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-content {
+  background: white;
+  border-radius: 8px;
+  width: 600px;
+  max-width: 90%; /* 최대 너비 90%로 설정 */
+  position: relative;
+  overflow: hidden;
+}
+
+.popup-content img {
+  max-height: 500px;
+  height: auto;
+  width: 100%;
+  object-fit: cover;
+}
+
+.popup-text {
+  padding: 20px;
+}
+
+.popup-text .rating-container {
+  display: flex; /* 플렉스박스 사용 */
+  align-items: center; /* 수직 중앙 정렬 */
+  margin: 0; /* 기본 여백 제거 */
+}
+
+.popup-text .rating-container > * {
+  margin-left: 8px; /* 평점과 별점 사이의 간격 */
+}
+
+
+.place-container-wrapper {
+  display: flex;            /* Flexbox를 사용하여 수평 배치 */
+  flex-wrap: nowrap;       /* 항목이 넘칠 경우 줄 바꿈 방지 */
+  overflow-x: auto;        /* 수평 스크롤 활성화 */
+  gap: 16px;               /* 항목 간의 간격 */
+  justify-content: flex-start; /* 왼쪽 정렬 */
+}
+
+.place-container {
+  display: flex; /* Flexbox 사용 */
+  min-width: 200px; /* 각 컨테이너의 최소 너비를 설정 (조정 가능) */
+  flex-direction: column;
+}
+
+.icon-number {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+}
+

@@ -4,6 +4,10 @@ import { useAuth } from '../../context/AuthContext'; // AuthContext를 가져옵
 import '../../assets/css/PlannerPage.css';
 import Planner from './Planner';
 import axios from 'axios';
+import StarRating from '../common/StarRating';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { TbCircleNumber1Filled, TbCircleNumber2Filled, TbCircleNumber3Filled, TbCircleNumber4Filled, TbCircleNumber5Filled, TbCircleNumber6Filled, TbCircleNumber7Filled, TbCircleNumber8Filled, TbCircleNumber9Filled } from 'react-icons/tb';
+import axiosInstance from '../../utils/axiosInstance';
 
 const PlannerPage = () => {
   const location = useLocation();
@@ -16,6 +20,8 @@ const PlannerPage = () => {
   const [routeInfo, setRouteInfo] = useState([]);
   const [title, setTitle] = useState(''); 
   const [content, setContent] = useState('');
+  const [placeDetails, setPlaceDetails] = useState(null);
+  const [containers, setContainers] = useState([]);
   
   const hotels = useMemo(() => location.state?.hotels || [], [location.state]);
 
@@ -93,6 +99,8 @@ const PlannerPage = () => {
           icon = 'https://img.icons8.com/?size=100&id=lq7Ugy76e18x&format=png&color=000000'; // 레스토랑 아이콘
         } else if(hotel.types.includes('tourist_attraction')) { 
           icon = 'https://img.icons8.com/?size=100&id=s8WkcTNjgu5O&format=png&color=000000'; // 관광지 아이콘
+        } else{
+          icon = 'https://img.icons8.com/?size=100&id=s8WkcTNjgu5O&format=png&color=000000'; // 기본
         }
 
         const marker = new window.google.maps.Marker({
@@ -107,10 +115,20 @@ const PlannerPage = () => {
 
         const infoWindow = new window.google.maps.InfoWindow({
           content: `
-            <div>
-              <h3>${hotel.title}</h3>
-              <p>${hotel.address}</p>
-            </div>
+            <div class="infowindow-content">
+            ${
+              hotel.image 
+                ? `<img src="${hotel.image}" alt="${hotel.title}" style="width:100px; height:auto;" />` 
+                : '<p>이미지가 없습니다.</p>'
+            }
+            <h3>${hotel.title}</h3>
+            <p>${hotel.address}</p>
+            ${
+              placeDetails && placeDetails.website 
+                ? `<a href="${placeDetails.website}" target="_blank" rel="noopener noreferrer">웹사이트 방문하기</a>` 
+                : ''
+            }
+          </div>
           `,
         });
 
@@ -166,9 +184,16 @@ const PlannerPage = () => {
   }, [map, hotels, directionsService, directionsRenderer]); // map, hotels, directionsService, directionsRenderer가 변경될 때만 실행
 
   // 팝업창 열기/닫기
-  const handleTogglePopup = (hotel) => {
+  const handleTogglePopup = async (hotel) => {
     setSelectedHotel(hotel);
     setShowPopup(prev => !prev); // 토글 기능
+
+    try {
+      const details = await fetchPlaceDetails(hotel.id);
+      setPlaceDetails(details); // 상태에 저장
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   // 팝업창 닫기
@@ -177,34 +202,120 @@ const PlannerPage = () => {
     setSelectedHotel(null);
   };
 
-  useEffect(() => {
-    if (selectedHotel) {
-      console.log(selectedHotel);
+  const handleClickOutsidePopup = (event) => {
+    if (event.target.className === 'popup') {
+      handleClosePopup(); // 팝업 닫기 함수 호출
     }
-  }, [selectedHotel]);
-
-  const renderHotelContainers = () => {
-    // 조건에 맞는 호텔만 필터링합니다.
-    const filteredHotels = hotels.filter(hotel => hotel.types.includes('lodging'));
-
-    // 필터링된 호텔 컨테이너를 생성합니다.
-    const hotelContainers = filteredHotels.map((hotel, index) => (
-      <div key={index} className="hotel-container">
-        <div className="hotel-title">
-          <p>{index + 1}일차 숙소</p>
-        </div>
-        <Planner
-          title={hotel.title}
-          address={hotel.address}
-          image={hotel.image}
-          onClick={() => handleTogglePopup(hotel)} // 팝업을 열기 위한 함수 호출
-        />
-      </div>
-    ));
-
-    return hotelContainers;
   };
 
+  const fetchPlaceDetails = async (placeId) => {
+    const service = new window.google.maps.places.PlacesService(map);
+    return new Promise((resolve, reject) => {
+      service.getDetails({ placeId }, (result, status) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+          resolve(result);
+        } else {
+          reject('장소 상세 정보 가져오기 실패');
+        }
+      });
+    });
+  };
+
+  useEffect(() => {
+    const lodgingPlaces = hotels.filter(place => place.types.includes('lodging'));
+    const nonLodgingPlaces = hotels.filter(place => !place.types.includes('lodging'));
+
+    const newContainers = lodgingPlaces.map((lodging, index) => ({
+      id: `container-${index}`,
+      lodging,
+      places: index === 0 ? nonLodgingPlaces : []
+    }));
+
+    setContainers(newContainers);
+  }, [hotels]);
+
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+
+    const { source, destination } = result;
+
+    if (source.droppableId !== destination.droppableId) {
+      const sourceContainer = containers.find(c => c.id === source.droppableId);
+      const destContainer = containers.find(c => c.id === destination.droppableId);
+      const sourcePlaces = [...sourceContainer.places];
+      const destPlaces = [...destContainer.places];
+      const [removed] = sourcePlaces.splice(source.index, 1);
+      destPlaces.splice(destination.index, 0, removed);
+
+      setContainers(containers.map(container => {
+        if (container.id === source.droppableId) {
+          return { ...container, places: sourcePlaces };
+        }
+        if (container.id === destination.droppableId) {
+          return { ...container, places: destPlaces };
+        }
+        return container;
+      }));
+    } else {
+      const container = containers.find(c => c.id === source.droppableId);
+      const copiedPlaces = [...container.places];
+      const [removed] = copiedPlaces.splice(source.index, 1);
+      copiedPlaces.splice(destination.index, 0, removed);
+
+      setContainers(containers.map(c => 
+        c.id === source.droppableId ? { ...c, places: copiedPlaces } : c
+      ));
+    }
+  };
+
+   const renderUnifiedContainers = () => (
+    <DragDropContext onDragEnd={onDragEnd}>
+      {containers.map((container, containerIndex) => (
+        <Droppable key={container.id} droppableId={container.id}>
+          {(provided) => (
+            <div
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+              className="place-container"
+            >
+              <div className="place-title">
+                <p>{`${containerIndex + 1}일차`}</p>
+              </div>
+              <Planner
+                title={container.lodging.title}
+                address={container.lodging.address}
+                image={container.lodging.image}
+                onClick={() => handleTogglePopup(container.lodging)}
+              />
+              {container.places.map((place, index) => (
+                <Draggable key={place.id} draggableId={place.id} index={index}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className="non-lodging-place"
+                    >
+                      <span className="icon-number">
+                        {getIconComponent(index + 1)} {/* 인덱스 + 1로 아이콘 생성 */}
+                      </span>
+                      <Planner
+                        title={place.title}
+                        address={place.address}
+                        image={place.image}
+                        onClick={() => handleTogglePopup(place)}
+                      />
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      ))}
+    </DragDropContext>
+  );
 
   const saveTravelPlan = async (event) => {
     event.preventDefault(); 
@@ -215,24 +326,25 @@ const PlannerPage = () => {
       alert("로그인 상태가 아닙니다.");
       return;
     }
-  
+
     const travelPlanData = {
-      title, // Using user-input title
-      content, // Using user-input content
+      title, 
+      content, 
       createdAt: new Date().toISOString(),
       travelBasket: {
         basketItems: hotels.map((hotel) => ({
           title: hotel.title,
           address: hotel.address,
           rating: hotel.rating || 0,
-          imageUrl: hotel.imageUrl,
+          lat: hotel.lat,
+          lng: hotel.lng,
         })),
       },
     };
-  
+
     try {
-      const response = await axios.post(
-        `https://trafficbackend.shop/user/${userId}/travel-plans`,
+      const response = await axiosInstance.post(
+        `/user/${userId}/travel-plans`,
         travelPlanData, // 전송할 데이터를 JSON 객체로 전송
         {
           headers: {
@@ -247,48 +359,31 @@ const PlannerPage = () => {
       alert('여행 계획 저장에 실패했습니다.');
     }
   };
-  
 
-  // 나머지 호텔 컨테이너 렌더링
-  const renderRestaurantContainers = () => {
-    // 레스토랑 타입의 호텔을 필터링합니다.
-    const restaurantHotels = hotels.filter(hotel => 
-      (hotel.types.includes('restaurant') && !hotel.types.includes('lodging')) || 
-      (hotel.types.includes('tourist_attraction'))
-    );
-
-    console.log("Filtered Restaurant Hotels:", restaurantHotels); // 필터링된 레스토랑 데이터 확인
-
-    // 레스토랑 호텔 컨테이너를 생성합니다.
-    return restaurantHotels.map((hotel, index) => {
-      const distanceInfo = routeInfo[index]
-        ? (
-          <div className="route-info-between">
-            <p>거리: {routeInfo[index].distance}</p>
-            <p>소요 시간: {routeInfo[index].duration}</p>
-          </div>
-        )
-        : null;
-
-      return (
-        <React.Fragment key={index}>
-          <div className="restaurant-container">
-            <div className="restaurant-title">
-              <p>{hotel.title}</p>
-            </div>
-            <Planner
-              title={hotel.title}
-              address={hotel.address}
-              image={hotel.image}
-              onClick={() => handleTogglePopup(hotel)} // 팝업을 열기 위한 함수 호출
-            />
-          </div>
-          {distanceInfo}
-        </React.Fragment>
-      );
-    });
+  const getIconComponent = (number) => {
+    switch (number) {
+      case 1:
+        return <TbCircleNumber1Filled />;
+      case 2:
+        return <TbCircleNumber2Filled />;
+      case 3:
+        return <TbCircleNumber3Filled />;
+      case 4:
+        return <TbCircleNumber4Filled />;
+      case 5:
+        return <TbCircleNumber5Filled />;
+      case 6:
+        return <TbCircleNumber6Filled />;
+      case 7:
+        return <TbCircleNumber7Filled />;
+      case 8:
+        return <TbCircleNumber8Filled />;
+      case 9:
+        return <TbCircleNumber9Filled />;
+      default:
+        return null; // 해당하는 아이콘이 없을 경우 null 반환
+    }
   };
-
 
   return (
     <div id="planner-page">
@@ -296,7 +391,7 @@ const PlannerPage = () => {
       <div className="planner-page-container">
         {hotels.length > 0 ? (
           <>
-           <div>
+            <div>
               <label>Title:</label>
               <input
                 type="text"
@@ -314,26 +409,12 @@ const PlannerPage = () => {
               />
             </div>
             <div className="section-wrapper">
-            {/* 호텔 섹션 */}
-            <div className="hotel-section">
-              <h2>숙소</h2>
-              <div className="hotel-container-wrapper">
-                {renderHotelContainers()} {/* 호텔 컨테이너 렌더링 */}
+              <div className="place-container-wrapper">
+                {renderUnifiedContainers()}
               </div>
             </div>
-
-            {/* 레스토랑 섹션 */}
-            <div className="restaurant-section">
-              <h2>레스토랑</h2>
-              <div className="restaurant-container-wrapper">
-                {renderRestaurantContainers()} {/* 레스토랑 컨테이너 렌더링 */}
-              </div>
-            </div>
-          </div>
             {auth ? (
-              <>
-                <button onClick={saveTravelPlan} className="save-button">여행 계획 저장</button>
-              </>
+              <button onClick={saveTravelPlan} className="save-button">여행 계획 저장</button>
             ) : (
               <p>로그인 후에 여행 계획을 저장할 수 있습니다.</p>
             )}
@@ -344,16 +425,20 @@ const PlannerPage = () => {
       </div>
 
       {/* 팝업창 표시 */}
-      {showPopup && selectedHotel && (
-        <div className="popup">
+      {showPopup && (
+        <div className="popup" onClick={handleClickOutsidePopup}>
           <div className="popup-content">
-            <button className="close" onClick={handleClosePopup}>&times;</button>
-            <h2>{selectedHotel.title}</h2>
-            <img src={selectedHotel.image} alt={selectedHotel.title} />
-            <p>{selectedHotel.address}</p>
-            <p>전화번호: {selectedHotel.phone_number}</p>
-            <p>평점: {selectedHotel.rating}</p>
-            <p>홈페이지: <a href={selectedHotel.url} target="_blank" rel="noopener noreferrer">{selectedHotel.url}</a></p>
+            <img src={selectedHotel?.image} alt={selectedHotel?.title} />
+            {placeDetails && (
+              <>
+                <h3>{placeDetails.name}</h3>
+                <p>{placeDetails.formatted_address}</p>
+                <StarRating rating={placeDetails.rating} />
+                <a href={placeDetails.website} target="_blank" rel="noopener noreferrer">
+                  홈페이지 바로가기
+                </a>
+              </>
+            )}
           </div>
         </div>
       )}

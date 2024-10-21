@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import axiosInstance from '../../utils/axiosInstance';
 
 function Register() {
   const [name, setName] = useState('');
@@ -29,7 +30,7 @@ function Register() {
     };
 
     try {
-      const resp = await axios.post('https://trafficbackend.shop/user/register', req, {
+      const resp = await axiosInstance.post('/user/register', req, {
         withCredentials: true,
       });
       console.log('[Register.js] Register() success :D');

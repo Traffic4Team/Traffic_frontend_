@@ -1,8 +1,8 @@
 import React from 'react';
 import '../../assets/css/Itemcontainer.css';
+import StarRating from '../common/StarRating';
 
-function Itemcontainer({ title, image, onClick, rating, address }) {
-
+function Itemcontainer({ title, image, onClick, rating, address, websiteUrl }) {
 
     return (
         <div className="container" onClick={onClick}> 
@@ -18,8 +18,13 @@ function Itemcontainer({ title, image, onClick, rating, address }) {
                     <h4>{title}</h4>
                 </div>
                 <div className="location">
-                    <h4>평점: {rating}</h4>
+                    <StarRating rating={rating} size={14} />
                     <h4>주소: {address}</h4>
+                    {websiteUrl && (
+                        <a href={websiteUrl} target="_blank" rel="noopener noreferrer">
+                        웹사이트 방문하기
+                        </a>
+                    )}
                 </div>
             </div>
         </div>
