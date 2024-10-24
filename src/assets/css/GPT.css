@@ -1,56 +1,118 @@
-/* GPT.css */
 .gpt-container {
-    width: 600px;
-    height: auto;
-    margin: 0 auto;
-    border: 1px solid #ccc;
-    padding: 20px;
-    border-radius: 8px;
-  }
-  
-  .gpt-title {
-    font-size: 1.5em;
-    margin-bottom: 10px;
-  }
-  
-  .gpt-chat-history {
-    height: auto;
-    overflow-y: auto;
-    border: 1px solid #eaeaea;
-    padding: 10px;
-    margin-bottom: 10px;
-  }
-  
-  .gpt-chat {
-    margin: 5px 0;
-    padding: 5px;
-    border-radius: 10px;
-    max-width: 70%;
-  }
-  
-  .gpt-chat-question {
-    text-align: left;
-    background-color: #f1f1f1;
-    align-self: flex-start;
-  }
-  
-  .gpt-chat-answer {
-    text-align: right;
-    background-color: #d1e7dd;
-    align-self: flex-end;
-  }
-  
-  .gpt-input {
-    width: 100%;
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-  }
-  
-  .gpt-error {
-    color: red;
-  }
-  
-  .place-info h4 {
-    font-size: 15px; /* 원하는 크기로 설정 */
-  }
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.gpt-title {
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+}
+
+.gpt-chat-history {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #f8fafc;
+}
+
+.gpt-chat {
+  padding: 0.8rem 1.2rem;
+  margin: 0.5rem 0;
+  border-radius: 8px;
+  line-height: 1.5;
+}
+
+.gpt-chat-question {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  margin-right: 20%;
+}
+
+.gpt-chat-answer {
+  background-color: white;
+  border: 1px solid #e3f2fd;
+  margin-left: 20%;
+}
+
+.gpt-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e3f2fd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.gpt-input:focus {
+  outline: none;
+  border-color: #90caf9;
+}
+
+.gpt-input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.gpt-error {
+  color: #d32f2f;
+  padding: 0.8rem;
+  background-color: #ffebee;
+  border-radius: 4px;
+  margin-top: 1rem;
+}
+
+.recommendation-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+}
+
+.recommendation-item {
+  background-color: white;
+  border: 1px solid #e3f2fd;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.recommendation-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.place-info {
+  padding: 1.2rem;
+}
+
+.place-info-title {
+  color: #1565c0;
+  margin: 0 0 0.8rem 0;
+  font-size: 1.2rem;
+}
+
+.place-info button {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.place-info button:hover {
+  background-color: #1565c0;
+}
+
+.place-info p {
+  color: #546e7a;
+  margin: 0.5rem 0;
+  line-height: 1.6;
+}

@@ -170,17 +170,70 @@ function GoogleMaps() {
         icon,
       });
   
-      // Use a single InfoWindow
-      marker.addListener('click', () => {
-        const details = placeDetails[place.id] || {};
-        const infoWindowContent = `
-          <div class="infowindow-content">
-            ${place.image ? `<img src="${place.image}" alt="${place.title}" style="width:100px; height:auto;" />` : '<p>이미지가 없습니다.</p>'}
-            <h3>${place.title}</h3>
-            <p>${place.address}</p>
-            ${details.website ? `<a href="${details.website}" target="_blank" rel="noopener noreferrer">웹사이트 방문하기</a>` : ''}
+      const createInfoWindowContent = (place, details) => {
+        const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+          place.title + ' ' + place.address
+        )}`;
+      
+        const getRatingStars = (rating) => {
+          if (!rating) return '';
+          const fullStars = Math.floor(rating);
+          const hasHalfStar = rating % 1 >= 0.5;
+          const stars = '⭐'.repeat(fullStars) + (hasHalfStar ? '½' : '');
+          return stars;
+        };
+      
+        return `
+          <div class="info-window">
+            ${place.image ? `
+              <div class="info-window__image-container">
+                <img class="info-window__image" src="${place.image}" alt="${place.title}"/>
+              </div>
+            ` : ''}
+            
+            <div class="info-window__content">
+              <h3 class="info-window__title">${place.title}</h3>
+              
+              ${place.rating ? `
+                <div class="info-window__rating">
+                  ${getRatingStars(place.rating)} (${place.rating})
+                </div>
+              ` : ''}
+              
+              <p class="info-window__address">${place.address}</p>
+              
+              ${place.phone_number ? `
+                <p class="info-window__phone">
+                  📞 ${place.phone_number}
+                </p>
+              ` : ''}
+              
+              <div class="info-window__buttons">
+                ${details?.website ? `
+                  <a href="${details.website}" 
+                     target="_blank" 
+                     rel="noopener noreferrer" 
+                     class="info-window__button info-window__button--website">
+                    웹사이트
+                  </a>
+                ` : ''}
+                
+                <a href="${googleMapsUrl}" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="info-window__button info-window__button--directions">
+                  google 지도에서 보기
+                </a>
+              </div>
+            </div>
           </div>
         `;
+      };
+      
+      // 마커 클릭 이벤트 리스너
+      marker.addListener('click', () => {
+        const details = placeDetails[place.id] || {};
+        const infoWindowContent = createInfoWindowContent(place, details);
         infoWindow.setContent(infoWindowContent);
         infoWindow.open(googleMap, marker);
       });

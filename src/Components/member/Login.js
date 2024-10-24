@@ -37,6 +37,7 @@ function Login() {
 
         if (data) {
           const { userId, accessToken, refreshToken } = data;
+          localStorage.setItem('userId', userId);
           updateAuth(userId, accessToken, refreshToken);
           navigate('/user'); // User 페이지로 이동하도록 변경
         } else {

@@ -20,9 +20,10 @@ const PlannerPage = () => {
   const [routeInfo, setRouteInfo] = useState([]);
   const [title, setTitle] = useState(''); 
   const [content, setContent] = useState('');
-  const [placeDetails, setPlaceDetails] = useState(null);
+  const [placeDetails, setPlaceDetails] = useState({});
   const [containers, setContainers] = useState([]);
-  
+  const infoWindow = useMemo(() => new window.google.maps.InfoWindow(), []);
+
   const hotels = useMemo(() => location.state?.hotels || [], [location.state]);
 
 
@@ -49,7 +50,7 @@ const PlannerPage = () => {
 
     const mapInstance = new window.google.maps.Map(container, {
       center: center,
-      zoom: 11,
+      zoom: 10,
       mapId: '92cb7201b7d43b21',
       disableDefaultUI: true,
       clickableIcons: false,
@@ -113,27 +114,85 @@ const PlannerPage = () => {
           },
         });
 
-        const infoWindow = new window.google.maps.InfoWindow({
-          content: `
-            <div class="infowindow-content">
-            ${
-              hotel.image 
-                ? `<img src="${hotel.image}" alt="${hotel.title}" style="width:100px; height:auto;" />` 
-                : '<p>이미지가 없습니다.</p>'
-            }
-            <h3>${hotel.title}</h3>
-            <p>${hotel.address}</p>
-            ${
-              placeDetails && placeDetails.website 
-                ? `<a href="${placeDetails.website}" target="_blank" rel="noopener noreferrer">웹사이트 방문하기</a>` 
-                : ''
-            }
-          </div>
-          `,
-        });
+        const createInfoWindowContent = (hotel, details = {}) => {
+          const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+            hotel.title + ' ' + hotel.address
+          )}`;
 
-        marker.addListener('click', () => {
-          infoWindow.open(map, marker);
+          const getRatingStars = (rating) => {
+            if (!rating) return '';
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            const stars = '⭐'.repeat(fullStars) + (hasHalfStar ? '½' : '');
+            return stars;
+          };
+        
+          return `
+            <div class="info-window">
+              ${hotel.image ? `
+                <div class="info-window__image-container">
+                  <img class="info-window__image" src="${hotel.image}" alt="${hotel.title}"/>
+                </div>
+              ` : ''}
+              
+              <div class="info-window__content">
+                <h3 class="info-window__title">${hotel.title}</h3>
+                
+                ${hotel.rating ? `
+                  <div class="info-window__rating">
+                    <div class="info-window__rating">
+                    ${getRatingStars(hotel.rating)} (${hotel.rating})
+                </div>
+                  </div>
+                ` : ''}
+                
+                <p class="info-window__address">${hotel.address}</p>
+                
+                ${hotel.phone_number ? `
+                  <p class="info-window__phone">
+                    📞 ${hotel.phone_number}
+                  </p>
+                ` : ''}
+                
+                <div class="info-window__buttons">
+                  ${details?.website ? `
+                    <a href="${details.website}" 
+                       target="_blank" 
+                       rel="noopener noreferrer" 
+                       class="info-window__button info-window__button--website">
+                      웹사이트
+                    </a>
+                  ` : ''}
+                  
+                  <a href="${googleMapsUrl}" 
+                     target="_blank" 
+                     rel="noopener noreferrer" 
+                     class="info-window__button info-window__button--directions">
+                    google
+                  </a>
+                </div>
+              </div>
+            </div>
+          `;
+        };
+        
+        // 마커 클릭 이벤트 리스너
+        marker.addListener('click', async () => {
+          try {
+            let details = placeDetails[hotel.id];
+            if (!details) {
+              details = await fetchPlaceDetails(hotel.id);
+            }
+            const infoWindowContent = createInfoWindowContent(hotel, details);
+            infoWindow.setContent(infoWindowContent);
+            infoWindow.open(map, marker);
+          } catch (error) {
+            console.error('Error fetching place details:', error);
+            // 에러가 발생해도 기본 정보는 표시
+            const infoWindowContent = createInfoWindowContent(hotel, {});
+            infoWindow.setContent(infoWindowContent);
+            infoWindow.open(map, marker);
+          }
         });
 
         return marker;
@@ -186,13 +245,15 @@ const PlannerPage = () => {
   // 팝업창 열기/닫기
   const handleTogglePopup = async (hotel) => {
     setSelectedHotel(hotel);
-    setShowPopup(prev => !prev); // 토글 기능
-
+    setShowPopup(prev => !prev);
+  
     try {
-      const details = await fetchPlaceDetails(hotel.id);
-      setPlaceDetails(details); // 상태에 저장
+      let details = placeDetails[hotel.id];
+      if (!details) {
+        details = await fetchPlaceDetails(hotel.id);
+      }
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching place details:', error);
     }
   };
 
@@ -209,10 +270,18 @@ const PlannerPage = () => {
   };
 
   const fetchPlaceDetails = async (placeId) => {
+    if (placeDetails[placeId]) {
+      return placeDetails[placeId];
+    }
+
     const service = new window.google.maps.places.PlacesService(map);
     return new Promise((resolve, reject) => {
       service.getDetails({ placeId }, (result, status) => {
         if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+          setPlaceDetails(prev => ({
+            ...prev,
+            [placeId]: result
+          }));
           resolve(result);
         } else {
           reject('장소 상세 정보 가져오기 실패');
@@ -428,15 +497,28 @@ const PlannerPage = () => {
       {showPopup && (
         <div className="popup" onClick={handleClickOutsidePopup}>
           <div className="popup-content">
-            <img src={selectedHotel?.image} alt={selectedHotel?.title} />
-            {placeDetails && (
+            {selectedHotel?.image && (
+              <img 
+                src={selectedHotel.image} 
+                alt={selectedHotel.title || '호텔 이미지'} 
+                className="popup-image"
+              />
+            )}
+            {selectedHotel && placeDetails[selectedHotel.id] && (
               <>
-                <h3>{placeDetails.name}</h3>
-                <p>{placeDetails.formatted_address}</p>
-                <StarRating rating={placeDetails.rating} />
-                <a href={placeDetails.website} target="_blank" rel="noopener noreferrer">
-                  홈페이지 바로가기
-                </a>
+                <h3>{placeDetails[selectedHotel.id].name || selectedHotel.title}</h3>
+                <p>{placeDetails[selectedHotel.id].formatted_address || selectedHotel.address}</p>
+                <StarRating rating={placeDetails[selectedHotel.id].rating} />
+                {placeDetails[selectedHotel.id].website && (
+                  <a 
+                    href={placeDetails[selectedHotel.id].website} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="website-link"
+                  >
+                    홈페이지 바로가기
+                  </a>
+                )}
               </>
             )}
           </div>

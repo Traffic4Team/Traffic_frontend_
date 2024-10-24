@@ -77,17 +77,25 @@
 }
 
 .delete-button {
-  color: #ff6b6b;
   cursor: pointer;
-  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.delete-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .map-container {
-  height: 400px;
-  width: 100%;
-  margin-top: 20px;
-  border: 2px solid #4a90e2;
-  border-radius: 5px;
+  width: 100%;          /* 부모 요소의 너비를 가득 채움 */
+  height: 600px;        /* 높이 설정 */
+  margin: 20px 0;       /* 상하 간격 */
+  border-radius: 8px;   /* 모서리 둥글게 */
+  overflow: hidden;     /* 넘치는 부분 숨기기 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
 }
 
 .basket-item {

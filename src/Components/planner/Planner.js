@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../assets/css/Planner.css';
 
-function planner({ title, address, image, onClick  }) {
+function planner({ title, address, image, onClick, rating  }) {
     return (
         <div className="container_Planner" onClick={onClick}>
             <div className="image-container_Planner">

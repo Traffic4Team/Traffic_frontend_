@@ -1,0 +1,89 @@
+.travel-details-container {
+    margin-bottom: 2rem;
+  }
+  
+  .travel-details-header {
+    padding: 1.5rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+  }
+  
+  .travel-details-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .travel-details-content {
+    color: #666;
+    margin-bottom: 1rem;
+  }
+  
+  .travel-details-date {
+    font-size: 0.875rem;
+    color: #888;
+  }
+  
+  .basket-section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  
+  .basket-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+  
+  .basket-item-card {
+    background-color: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .basket-item-card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .basket-item-image {
+    height: 12rem;
+    position: relative;
+  }
+  
+  .basket-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .basket-item-content {
+    padding: 1rem;
+  }
+  
+  .basket-item-title {
+    font-weight: 600;
+    font-size: 1.125rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-bottom: 0.5rem;
+  }
+  
+  .basket-item-address {
+    color: #666;
+    font-size: 0.875rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .empty-message {
+    text-align: center;
+    padding: 1rem;
+    color: #666;
+  }
